@@ -1,0 +1,772 @@
+{% extends "base.html" %}
+
+{% block title %}Создать поездку | Север-Юг{% endblock %}
+
+{% block extra_css %}
+<script src="https://api-maps.yandex.ru/2.1/?apikey=4932c58f-dc3f-4c34-b0ca-a64c1ef43dca&lang=ru_RU" type="text/javascript"></script>
+<style>
+    /* Современный дизайн для создания поездки */
+    :root {
+        --primary: #667eea;
+        --secondary: #764ba2;
+        --success: #28a745;
+        --warning: #ffc107;
+        --danger: #dc3545;
+        --dark: #343a40;
+        --light: #f8f9fa;
+    }
+
+    .create-hero {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        color: white;
+        padding: 30px 20px;
+        border-radius: 30px;
+        margin-bottom: 30px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        animation: fadeInDown 0.6s ease;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .create-hero::before {
+        content: '🚗';
+        position: absolute;
+        right: 20px;
+        bottom: 20px;
+        font-size: 8rem;
+        opacity: 0.1;
+        transform: rotate(15deg);
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: rotate(15deg) translateY(0); }
+        50% { transform: rotate(15deg) translateY(-20px); }
+    }
+
+    .create-hero h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .create-hero p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Мобильная версия - карта сверху */
+    @media (max-width: 768px) {
+        .create-grid {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .map-card {
+            order: -1;
+            margin-bottom: 20px;
+        }
+
+        .create-hero h1 {
+            font-size: 1.8rem;
+        }
+    }
+
+    /* Десктоп версия - два столбца */
+    @media (min-width: 769px) {
+        .create-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            animation: fadeIn 0.8s ease;
+        }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 30px;
+        padding: 30px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .map-card {
+        background: white;
+        border-radius: 30px;
+        padding: 30px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--dark);
+    }
+
+    .section-title i {
+        color: var(--primary);
+        font-size: 1.5rem;
+    }
+
+    .address-group {
+        background: var(--light);
+        border-radius: 20px;
+        padding: 5px;
+        margin-bottom: 25px;
+    }
+
+    .address-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        border-radius: 15px;
+        transition: all 0.3s;
+        position: relative;
+    }
+
+    .address-item:first-child {
+        margin-bottom: 5px;
+    }
+
+    .address-item:hover {
+        background: white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .address-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        font-size: 1.2rem;
+    }
+
+    .from-icon {
+        background: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+    }
+
+    .to-icon {
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+    }
+
+    .address-input {
+        background: transparent;
+        border: 2px solid transparent;
+        border-radius: 12px;
+        padding: 8px 12px;
+        transition: all 0.3s;
+        width: 100%;
+        font-size: 1rem;
+    }
+
+    .address-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+
+    .swap-btn {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid #e9ecef;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        z-index: 10;
+    }
+
+    .swap-btn:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+        transform: translateY(-50%) rotate(180deg);
+    }
+
+    .input-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .input-group-custom {
+        margin-bottom: 20px;
+    }
+
+    .input-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--dark);
+    }
+
+    .input-label i {
+        color: var(--primary);
+        margin-right: 5px;
+    }
+
+    .form-control-custom {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        font-size: 1rem;
+        transition: all 0.3s;
+        background: white;
+    }
+
+    .form-control-custom:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+
+    .quick-routes {
+        background: var(--light);
+        border-radius: 20px;
+        padding: 20px;
+        margin: 25px 0;
+    }
+
+    .quick-title {
+        font-weight: 600;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--dark);
+    }
+
+    .quick-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 10px;
+    }
+
+    .quick-btn {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        padding: 12px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-align: center;
+        font-size: 0.95rem;
+    }
+
+    .quick-btn:hover {
+        border-color: var(--warning);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(255, 193, 7, 0.2);
+    }
+
+    .quick-btn i {
+        color: var(--warning);
+        margin-right: 5px;
+    }
+
+    .map-container {
+        border-radius: 20px;
+        overflow: hidden;
+        height: 400px;
+        margin-top: 20px;
+        border: 3px solid white;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+    }
+
+    .tip-box {
+        background: #e3f2fd;
+        border-radius: 15px;
+        padding: 15px;
+        margin: 20px 0;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border-left: 4px solid #2196f3;
+    }
+
+    .tip-icon {
+        width: 40px;
+        height: 40px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #2196f3;
+        font-size: 1.2rem;
+    }
+
+    .tip-text {
+        color: #0d47a1;
+        font-size: 0.95rem;
+    }
+
+    .submit-btn {
+        background: linear-gradient(135deg, var(--success) 0%, #20c997 100%);
+        border: none;
+        border-radius: 20px;
+        padding: 18px;
+        color: white;
+        font-weight: 700;
+        font-size: 1.2rem;
+        width: 100%;
+        transition: all 0.3s;
+        box-shadow: 0 5px 20px rgba(40, 167, 69, 0.3);
+        margin-top: 20px;
+        cursor: pointer;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(40, 167, 69, 0.4);
+    }
+
+    .submit-btn i {
+        margin-right: 8px;
+    }
+
+    .active-point {
+        background: white !important;
+        border: 2px solid var(--primary);
+    }
+
+    .point-info {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+        padding: 15px;
+        background: var(--light);
+        border-radius: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Герой секция -->
+<div class="create-hero">
+    <h1><i class="bi bi-plus-circle"></i> Создать поездку</h1>
+    <p>Поделитесь свободными местами с попутчиками</p>
+</div>
+
+<div class="create-grid">
+    <!-- Карта (будет первой на мобильных) -->
+    <div class="map-card">
+        <div class="section-title">
+            <i class="bi bi-map"></i>
+            <span>Выберите точки на карте</span>
+        </div>
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+
+        <!-- Информация о выбранных точках -->
+        <div class="point-info">
+            <div class="d-flex align-items-center gap-2">
+                <div style="width: 20px; height: 20px; background: #28a745; border-radius: 50%;"></div>
+                <span id="fromDisplay" class="small">Не выбрано</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <div style="width: 20px; height: 20px; background: #dc3545; border-radius: 50%;"></div>
+                <span id="toDisplay" class="small">Не выбрано</span>
+            </div>
+        </div>
+
+        <!-- Подсказка -->
+        <div class="tip-box" style="margin-top: 15px;">
+            <div class="tip-icon">
+                <i class="bi bi-lightbulb"></i>
+            </div>
+            <div class="tip-text">
+                <strong>Как выбрать точку:</strong> Кликните на карте или начните вводить адрес.
+                <span id="activeFieldTip" style="color: var(--primary); font-weight: 600;">Сейчас выбираем: откуда</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Форма -->
+    <div class="form-card">
+        <div class="section-title">
+            <i class="bi bi-geo-alt"></i>
+            <span>Маршрут</span>
+        </div>
+
+        <!-- Поля адресов -->
+        <div class="address-group">
+            <div class="address-item" id="fromItem" onclick="setActiveField('from')">
+                <div class="address-icon from-icon">
+                    <i class="bi bi-geo-alt-fill"></i>
+                </div>
+                <input type="text" class="address-input" id="fromInput"
+                       placeholder="Откуда? (например, пл. Захарова)" autocomplete="off">
+                <div class="swap-btn" onclick="swapAddresses(event)" title="Поменять местами">
+                    <i class="bi bi-arrow-down-up"></i>
+                </div>
+            </div>
+
+            <div class="address-item" id="toItem" onclick="setActiveField('to')">
+                <div class="address-icon to-icon">
+                    <i class="bi bi-flag-fill"></i>
+                </div>
+                <input type="text" class="address-input" id="toInput"
+                       placeholder="Куда? (например, Северная сторона)" autocomplete="off">
+            </div>
+        </div>
+
+        <!-- Скрытые поля для формы -->
+        <input type="hidden" id="from" name="from">
+        <input type="hidden" id="from_lat" name="from_lat">
+        <input type="hidden" id="from_lng" name="from_lng">
+        <input type="hidden" id="to" name="to">
+        <input type="hidden" id="to_lat" name="to_lat">
+        <input type="hidden" id="to_lng" name="to_lng">
+
+        <div class="section-title" style="margin-top: 30px;">
+            <i class="bi bi-clock"></i>
+            <span>Детали поездки</span>
+        </div>
+
+        <form method="POST" id="rideForm">
+            <input type="hidden" name="from" id="from_hidden">
+            <input type="hidden" name="to" id="to_hidden">
+            <input type="hidden" name="from_lat" id="from_lat_hidden">
+            <input type="hidden" name="from_lng" id="from_lng_hidden">
+            <input type="hidden" name="to_lat" id="to_lat_hidden">
+            <input type="hidden" name="to_lng" id="to_lng_hidden">
+            <div class="input-row">
+                <div class="input-group-custom">
+                    <label class="input-label"><i class="bi bi-calendar"></i> Дата и время</label>
+                    <input type="datetime-local" class="form-control-custom" name="time" id="rideTime" required>
+                </div>
+                <div class="input-group-custom">
+                    <label class="input-label"><i class="bi bi-people"></i> Мест</label>
+                    <select class="form-control-custom" name="seats" required>
+                        <option value="1">1 место</option>
+                        <option value="2" selected>2 места</option>
+                        <option value="3">3 места</option>
+                        <option value="4">4 места</option>
+                        <option value="5">5 мест</option>
+                        <option value="6">6 мест</option>
+                        <option value="7">7 мест</option>
+                        <option value="8">8 мест</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group-custom">
+                <label class="input-label"><i class="bi bi-cash"></i> Цена (₽)</label>
+                <input type="number" class="form-control-custom" name="price" value="0" min="0" step="100">
+                <small class="text-muted">0 ₽ - бесплатная поездка</small>
+            </div>
+
+            <div class="input-group-custom">
+                <label class="input-label"><i class="bi bi-chat"></i> Комментарий (необязательно)</label>
+                <textarea class="form-control-custom" name="description" rows="3"
+                          placeholder="Например: не курю, есть багажник, с животными..."></textarea>
+            </div>
+
+            <!-- Быстрые маршруты -->
+            <div class="quick-routes">
+                <div class="quick-title">
+                    <i class="bi bi-lightning-charge text-warning"></i>
+                    <span>Быстрые маршруты</span>
+                </div>
+                <div class="quick-grid">
+                    <div class="quick-btn" onclick="setQuickRoute('пл. Захарова', 'пл. Нахимова')">
+                        <i class="bi bi-arrow-right"></i> Захарова → Нахимова
+                    </div>
+                    <div class="quick-btn" onclick="setQuickRoute('пл. Нахимова', 'пл. Захарова')">
+                        <i class="bi bi-arrow-right"></i> Нахимова → Захарова
+                    </div>
+                    <div class="quick-btn" onclick="setQuickRoute('пл. Захарова', 'пл. Ушакова')">
+                        <i class="bi bi-arrow-right"></i> Захарова → Ушакова
+                    </div>
+                    <div class="quick-btn" onclick="setQuickRoute('пл. Ушакова', 'пл. Захарова')">
+                        <i class="bi bi-arrow-right"></i> Ушакова → Захарова
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                <i class="bi bi-check-circle"></i> Создать поездку
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    let map;
+    let fromPlacemark = null;
+    let toPlacemark = null;
+    let route = null;
+    let activeField = 'from';
+    let searchControl = null;
+
+    ymaps.ready(init);
+
+    function init() {
+        map = new ymaps.Map("map", {
+            center: [44.6165, 33.5256],
+            zoom: 13,
+            controls: ['zoomControl', 'fullscreenControl', 'geolocationControl', 'typeSelector']
+        });
+
+        // Поиск на карте
+        searchControl = new ymaps.control.SearchControl({
+            options: {
+                float: 'right',
+                noPlacemark: true,
+                provider: 'yandex#search'
+            }
+        });
+        map.controls.add(searchControl);
+
+        searchControl.events.add('resultselect', function(e) {
+            const index = e.get('index');
+            searchControl.getResult(index).then(function(res) {
+                const coords = res.geometry.getCoordinates();
+                const address = res.properties.get('name');
+
+                if (activeField === 'from') {
+                    setFromPoint(coords, address);
+                    setActiveField('to');
+                } else {
+                    setToPoint(coords, address);
+                    setActiveField('from');
+                }
+            });
+        });
+
+        // Клик по карте
+        map.events.add('click', function(e) {
+            const coords = e.get('coords');
+            ymaps.geocode(coords).then(function(res) {
+                const address = res.geoObjects.get(0).getAddressLine();
+
+                if (activeField === 'from') {
+                    setFromPoint(coords, address);
+                    setActiveField('to');
+                } else {
+                    setToPoint(coords, address);
+                    setActiveField('from');
+                }
+            });
+        });
+
+        // Геолокация
+        map.controls.get('geolocationControl').events.add('locationchange', function(e) {
+            const position = e.get('position');
+            const coords = [position.latitude, position.longitude];
+
+            ymaps.geocode(coords).then(function(res) {
+                const address = res.geoObjects.get(0).getAddressLine();
+
+                if (activeField === 'from') {
+                    setFromPoint(coords, address);
+                } else {
+                    setToPoint(coords, address);
+                }
+            });
+        });
+
+        // Устанавливаем минимальную дату и время (сейчас)
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('rideTime').min = now.toISOString().slice(0, 16);
+    }
+
+    function setActiveField(field) {
+        activeField = field;
+        document.getElementById('fromItem').classList.remove('active-point');
+        document.getElementById('toItem').classList.remove('active-point');
+        document.getElementById(field + 'Item').classList.add('active-point');
+
+        const tip = document.getElementById('activeFieldTip');
+        if (field === 'from') {
+            tip.innerHTML = 'Сейчас выбираем: откуда';
+            tip.style.color = '#28a745';
+        } else {
+            tip.innerHTML = 'Сейчас выбираем: куда';
+            tip.style.color = '#dc3545';
+        }
+    }
+
+    function swapAddresses(event) {
+        event.stopPropagation();
+
+        const fromLat = document.getElementById('from_lat').value;
+        const fromLng = document.getElementById('from_lng').value;
+        const toLat = document.getElementById('to_lat').value;
+        const toLng = document.getElementById('to_lng').value;
+        const fromAddr = document.getElementById('fromInput').value;
+        const toAddr = document.getElementById('toInput').value;
+
+        if (fromAddr && toAddr) {
+            setFromPoint([toLat, toLng], toAddr);
+            setToPoint([fromLat, fromLng], fromAddr);
+        }
+    }
+
+    function setFromPoint(coords, address) {
+        document.getElementById('fromInput').value = address;
+        document.getElementById('fromDisplay').innerText = address;
+    document.getElementById('from_hidden').value = address;
+    document.getElementById('from_lat_hidden').value = coords[0];
+    document.getElementById('from_lng_hidden').value = coords[1];
+        document.getElementById('from').value = address;
+        document.getElementById('fromInput').value = address;
+        document.getElementById('fromDisplay').innerText = address;
+        document.getElementById('from_lat').value = coords[0];
+        document.getElementById('from_lng').value = coords[1];
+
+        if (fromPlacemark) map.geoObjects.remove(fromPlacemark);
+
+        fromPlacemark = new ymaps.Placemark(coords, {
+            balloonContent: 'Отправление: ' + address,
+            iconContent: 'А'
+        }, {
+            preset: 'islands#greenStretchyIcon',
+            draggable: true
+        });
+
+        fromPlacemark.events.add('dragend', function(e) {
+            const newCoords = e.get('target').geometry.getCoordinates();
+            ymaps.geocode(newCoords).then(res => {
+                setFromPoint(newCoords, res.geoObjects.get(0).getAddressLine());
+            });
+        });
+
+        map.geoObjects.add(fromPlacemark);
+        map.setCenter(coords, 15);
+        buildRoute();
+    }
+
+    function setToPoint(coords, address) {
+    document.getElementById('toInput').value = address;
+    document.getElementById('toDisplay').innerText = address;
+    document.getElementById('to_hidden').value = address;
+    document.getElementById('to_lat_hidden').value = coords[0];
+    document.getElementById('to_lng_hidden').value = coords[1];
+        document.getElementById('to').value = address;
+        document.getElementById('toInput').value = address;
+        document.getElementById('toDisplay').innerText = address;
+        document.getElementById('to_lat').value = coords[0];
+        document.getElementById('to_lng').value = coords[1];
+
+        if (toPlacemark) map.geoObjects.remove(toPlacemark);
+
+        toPlacemark = new ymaps.Placemark(coords, {
+            balloonContent: 'Прибытие: ' + address,
+            iconContent: 'Б'
+        }, {
+            preset: 'islands#redStretchyIcon',
+            draggable: true
+        });
+
+        toPlacemark.events.add('dragend', function(e) {
+            const newCoords = e.get('target').geometry.getCoordinates();
+            ymaps.geocode(newCoords).then(res => {
+                setToPoint(newCoords, res.geoObjects.get(0).getAddressLine());
+            });
+        });
+
+        map.geoObjects.add(toPlacemark);
+        map.setCenter(coords, 15);
+        buildRoute();
+    }
+
+    function buildRoute() {
+        if (route) map.geoObjects.remove(route);
+
+        const fromLat = document.getElementById('from_lat').value;
+        const fromLng = document.getElementById('from_lng').value;
+        const toLat = document.getElementById('to_lat').value;
+        const toLng = document.getElementById('to_lng').value;
+
+        if (fromLat && toLat) {
+            ymaps.route([[fromLat, fromLng], [toLat, toLng]], {
+                avoidTrafficJams: true,
+                routingMode: 'auto'
+            }).then(function(routeRes) {
+                route = routeRes;
+                map.geoObjects.add(route);
+            });
+        }
+    }
+
+    function setQuickRoute(from, to) {
+        const routes = {
+            'пл. Захарова': ['пл. Захарова', 44.62588, 33.53742],
+            'пл. Нахимова': ['пл. Нахимова', 44.615806, 33.525365],
+            'пл. Ушакова': ['пл. Ушакова', 44.600544, 33.524351]
+        };
+
+        if (from in routes && to in routes) {
+            setFromPoint([routes[from][1], routes[from][2]], routes[from][0]);
+            setTimeout(() => {
+                setToPoint([routes[to][1], routes[to][2]], routes[to][0]);
+            }, 500);
+        }
+    }
+
+    // Валидация формы
+    document.getElementById('rideForm').addEventListener('submit', function(e) {
+        const fromLat = document.getElementById('from_lat').value;
+        const toLat = document.getElementById('to_lat').value;
+
+        if (!fromLat || !toLat) {
+            e.preventDefault();
+            alert('Пожалуйста, выберите точки отправления и прибытия на карте');
+        }
+    });
+
+    setActiveField('from');
+</script>
+{% endblock %}

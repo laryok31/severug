@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Оценить попутчиков{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body p-5">
+                <h2 class="text-center mb-4">⭐ Оцените попутчиков</h2>
+
+                <div id="passengersList"></div>
+
+                <button class="btn btn-success w-100 mt-4" onclick="submitAllRatings()">
+                    Отправить все оценки
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let passengers = [];
+    let rideId = {{ ride_id }};
+
+    function loadPassengers() {
+        fetch(`/api/ride_passengers/${rideId}`)
+            .then(response => response.json())
+            .then(data => {
+                passengers = data;
+                displayPassengers();
+            });
+    }
+
+    function displayPassengers() {
+        const container = document.getElementById('passengersList');
+        let html = '';
+
+        passengers.forEach((p, index) => {
+            html += `
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5>${p.name}</h5>
+                        <div class="rating-stars mb-3" data-index="${index}">
+                            <span class="star" onclick="setRating(${index}, 1)">☆</span>
+                            <span class="star" onclick="setRating(${index}, 2)">☆</span>
+                            <span class="star" onclick="setRating(${index}, 3)">☆</span>
+                            <span class="star" onclick="setRating(${index}, 4)">☆</span>
+                            <span class="star" onclick="setRating(${index}, 5)">☆</span>
+                        </div>
+                        <textarea class="form-control" placeholder="Комментарий (необязательно)"
+                                  oninput="passengers[${index}].comment = this.value"></textarea>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    function setRating(index, rating) {
+        passengers[index].rating = rating;
+        const stars = document.querySelectorAll(`[data-index="${index}"] .star`);
+        stars.forEach((star, i) => {
+            star.innerHTML = i < rating ? '★' : '☆';
+            star.style.color = i < rating ? '#ffc107' : '#ddd';
+        });
+    }
+
+    function submitAllRatings() {
+        const ratings = passengers.map(p => ({
+            passenger_id: p.id,
+            rating: p.rating || 0,
+            comment: p.comment || ''
+        })).filter(r => r.rating > 0);
+
+        if (ratings.length === 0) {
+            alert('Поставьте хотя бы одну оценку');
+            return;
+        }
+
+        fetch('/api/rate_passengers', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                ride_id: rideId,
+                ratings: ratings
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ Оценки отправлены!');
+                window.location.href = '/profile';
+            }
+        });
+    }
+
+    loadPassengers();
+</script>
+{% endblock %}

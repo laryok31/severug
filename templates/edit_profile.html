@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+
+{% block title %}Настройки профиля | Север-Юг{% endblock %}
+
+{% block content %}
+<style>
+    .settings-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 24px;
+        padding: 24px;
+        color: white;
+        margin-bottom: 24px;
+    }
+
+    .settings-header h1 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    /* На мобильных - одна колонка */
+    .settings-form {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .settings-card {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 24px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .card-title i {
+        color: #667eea;
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        font-size: 0.85rem;
+        margin-bottom: 4px;
+        color: #495057;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e9ecef;
+        border-radius: 14px;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        outline: none;
+    }
+
+    .driver-toggle {
+        background: #f8f9fa;
+        border-radius: 14px;
+        padding: 14px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .driver-toggle-info h6 {
+        margin: 0 0 2px 0;
+        font-size: 1rem;
+    }
+
+    .driver-toggle-info p {
+        margin: 0;
+        color: #6c757d;
+        font-size: 0.8rem;
+    }
+
+    .btn-save {
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        border-radius: 16px;
+        color: white;
+        font-weight: 700;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin: 20px 0;
+    }
+
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(40, 167, 69, 0.2);
+    }
+
+    .privacy-section {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 16px;
+        margin: 20px 0;
+    }
+
+    .privacy-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .privacy-item:last-child {
+        border-bottom: none;
+    }
+
+    .danger-zone {
+        border: 2px solid #dc3545;
+        border-radius: 16px;
+        padding: 16px;
+        margin-top: 20px;
+    }
+
+    .danger-zone h6 {
+        color: #dc3545;
+        margin-bottom: 12px;
+    }
+
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 30px;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-right: 10px;
+        margin-bottom: 10px;
+    }
+</style>
+
+<div class="settings-header">
+    <h1><i class="bi bi-gear"></i> Настройки</h1>
+    <p>Управляйте вашим профилем</p>
+</div>
+
+<form method="POST" class="settings-form">
+    <!-- Основная информация -->
+    <div class="settings-card">
+        <div class="card-title">
+            <i class="bi bi-person"></i> Основное
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Имя</label>
+            <input type="text" class="form-control" name="name" value="{{ user.name }}" required>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Телефон для связи</label>
+            <input type="tel" class="form-control" name="contact_phone"
+                   value="{{ user.contact_phone or user.phone }}">
+        </div>
+    </div>
+
+    <!-- Мессенджеры -->
+    <div class="settings-card">
+        <div class="card-title">
+            <i class="bi bi-chat"></i> Мессенджеры
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Telegram</label>
+            <input type="text" class="form-control" name="telegram" value="{{ user.telegram or '' }}"
+                   placeholder="@username">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Max</label>
+            <input type="text" class="form-control" name="max" value="{{ user.max or '' }}"
+                   placeholder="Ник в Max">
+        </div>
+    </div>
+
+    <!-- Данные водителя -->
+    <div class="settings-card">
+        <div class="card-title">
+            <i class="bi bi-truck"></i> Водитель
+        </div>
+
+        <div class="driver-toggle">
+            <div class="driver-toggle-info">
+                <h6>Я водитель</h6>
+                <p>Есть автомобиль и готов подвозить</p>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="is_driver"
+                       id="isDriver" {% if user.is_driver %}checked{% endif %}>
+            </div>
+        </div>
+
+        <div id="driverFields" style="{% if not user.is_driver %}display: none;{% endif %}">
+            <div class="form-group">
+                <label class="form-label">Марка и модель</label>
+                <input type="text" class="form-control" name="car_model" value="{{ user.car_model or '' }}">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Цвет</label>
+                <select class="form-control" name="car_color">
+                    <option value="">Выберите цвет</option>
+                    <option value="Белый" {% if user.car_color == 'Белый' %}selected{% endif %}>Белый</option>
+                    <option value="Черный" {% if user.car_color == 'Черный' %}selected{% endif %}>Черный</option>
+                    <option value="Серебристый" {% if user.car_color == 'Серебристый' %}selected{% endif %}>Серебристый</option>
+                    <option value="Серый" {% if user.car_color == 'Серый' %}selected{% endif %}>Серый</option>
+                    <option value="Синий" {% if user.car_color == 'Синий' %}selected{% endif %}>Синий</option>
+                    <option value="Красный" {% if user.car_color == 'Красный' %}selected{% endif %}>Красный</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Госномер</label>
+                <input type="text" class="form-control" name="car_number" value="{{ user.car_number or '' }}">
+            </div>
+        </div>
+    </div>
+
+    <!-- Приватность -->
+    <div class="privacy-section">
+        <h6><i class="bi bi-shield-lock"></i> Приватность</h6>
+
+        <div class="privacy-item">
+            <span>Скрыть номер телефона</span>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="hide_phone" id="hidePhone">
+            </div>
+        </div>
+
+        <div class="privacy-item">
+            <span>Только с верификацией</span>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="only_verified" id="onlyVerified">
+            </div>
+        </div>
+
+        <div class="privacy-item">
+            <span>Не показывать в поиске</span>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="hide_from_search" id="hideFromSearch">
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn-save">
+        <i class="bi bi-check-circle"></i> Сохранить
+    </button>
+</form>
+
+<!-- Опасная зона -->
+<div class="danger-zone">
+    <h6><i class="bi bi-exclamation-triangle"></i> Опасная зона</h6>
+    <button class="btn-danger" onclick="changePassword()">
+        <i class="bi bi-key"></i> Сменить пароль
+    </button>
+    <button class="btn-danger" onclick="deleteAccount()">
+        <i class="bi bi-trash"></i> Удалить аккаунт
+    </button>
+</div>
+
+<script>
+    document.getElementById('isDriver').addEventListener('change', function() {
+        document.getElementById('driverFields').style.display = this.checked ? 'block' : 'none';
+    });
+
+    function changePassword() {
+        alert('Функция смены пароля в разработке');
+    }
+
+    function deleteAccount() {
+        if (confirm('Вы уверены? Это действие нельзя отменить.')) {
+            alert('Функция удаления аккаунта в разработке');
+        }
+    }
+</script>
+{% endblock %}

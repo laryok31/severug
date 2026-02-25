@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}Частые вопросы | Север-Юг{% endblock %}
+
+{% block content %}
+<style>
+    .faq-hero {
+        background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%);
+        border-radius: 40px;
+        padding: 60px 40px;
+        color: white;
+        margin-bottom: 40px;
+        text-align: center;
+    }
+
+    .faq-hero h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 15px;
+    }
+
+    .faq-hero p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .faq-grid {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .faq-item {
+        background: white;
+        border-radius: 25px;
+        margin-bottom: 20px;
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+        transition: all 0.3s;
+    }
+
+    .faq-item:hover {
+        border-color: #4f46e5;
+        transform: translateY(-3px);
+    }
+
+    .faq-question {
+        padding: 25px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #1e293b;
+    }
+
+    .faq-question i {
+        transition: transform 0.3s;
+        color: #4f46e5;
+    }
+
+    .faq-item.active .faq-question i {
+        transform: rotate(180deg);
+    }
+
+    .faq-answer {
+        padding: 0 25px 25px;
+        color: #6c757d;
+        line-height: 1.7;
+        display: none;
+    }
+
+    .faq-item.active .faq-answer {
+        display: block;
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .faq-category {
+        margin: 40px 0 20px;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .faq-category i {
+        color: #4f46e5;
+    }
+</style>
+
+<div class="faq-hero">
+    <h1>❓ Частые вопросы</h1>
+    <p>Ответы на популярные вопросы о сервисе</p>
+</div>
+
+<div class="faq-grid">
+    <!-- О сервисе -->
+    <div class="faq-category">
+        <i class="bi bi-info-circle"></i> О сервисе
+    </div>
+
+    <div class="faq-item">
+        <div class="faq-question">
+            <span>Что такое Север-Юг?</span>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            Север-Юг — это бесплатный сервис поиска попутчиков в Севастополе. Мы помогаем
+            водителям и пассажирам находить друг друга, особенно когда паром через бухту
+            не ходит из-за погоды. Сервис создан жителем Севастополя и полностью бесплатен.
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <div class="faq-question">
+            <span>Сколько стоит?</span>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            Сервис абсолютно бесплатный! Водители сами устанавливают цену за поездку
+            (можно везти бесплатно). Мы не берем комиссию. Если вы хотите поддержать проект,
+            можете отправить донат по реквизитам в разделе "Поддержать".
+        </div>
+    </div>
+
+    <!-- Для пассажиров -->
+    <div class="faq-category">
+        <i class="bi bi-person-walking"></i> Для пассажиров
+    </div>
+
+    <div class="faq-item">
+        <div class="faq-question">
+            <span>Как найти попутчика?</span>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            Нажмите "Поиск" в меню, выберите на карте откуда и куда нужно ехать. Система покажет
+            всех водителей, которые едут по вашему маршруту. Выберите подходящего, отправьте заявку
+            и дождитесь подтверждения. После подтверждения вы сможете общаться в чате.
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <div class="faq-question">
+            <span>Как отменить бронирование?</span>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            Зайдите в профиль, найдите поездку в разделе "Активные поездки" и нажмите кнопку
+            "Отменить бронь". Места снова станут доступны другим пассажирам.
+        </div>
+    </div>
+
+    <!-- Для водителей -->
+    <div class="faq-category">
+        <i class="bi bi-car-front"></i> Для водителей
+    </div>
+
+    <div class="faq-item">
+        <div class="faq-question">
+            <span>Как создать поездку?</span>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            Войдите в профиль, нажмите "Создать поездку". Укажите маршрут на карте, время,
+            количество свободных мест и цену (можно оставить 0 для бесплатной поездки).
+            После создания пассажиры смогут отправлять вам заявки.
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <div class="faq-question">
+            <span>Как подтверждать заявки?</span>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            В деталях поездки вы увидите список заявок. Напротив каждой заявки есть кнопки
+            "Подтвердить" и "Отклонить". Подтвержденные заявки занимают места в поездке.
+        </div>
+    </div>
+
+    <!-- Безопасность -->
+    <div class="faq-category">
+        <i class="bi bi-shield-check"></i> Безопасность
+    </div>
+
+    <div class="faq-item">
+        <div class="faq-question">
+            <span>Безопасно ли это?</span>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            Мы заботимся о безопасности: есть рейтинги, отзывы, верификация по телефону.
+            Вы всегда можете пообщаться в чате перед поездкой, уточнить детали. В случае проблем
+            обращайтесь в поддержку.
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <div class="faq-question">
+            <span>Что делать, если возникла проблема?</span>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            Создайте обращение в разделе "Поддержка". Опишите ситуацию, и мы поможем.
+            Также можно написать в Telegram @l_arick.
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.faq-item').forEach(item => {
+        item.addEventListener('click', function() {
+            this.classList.toggle('active');
+        });
+    });
+</script>
+{% endblock %}

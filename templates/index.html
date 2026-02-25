@@ -1,0 +1,1079 @@
+{% extends "base.html" %}
+
+{% block title %}Север-Юг | Попутчики через бухту{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ===== СОВРЕМЕННЫЙ ДИЗАЙН ===== */
+    :root {
+        --primary: #667eea;
+        --secondary: #764ba2;
+        --accent: #ff6b6b;
+        --dark: #2c3e50;
+        --light: #f8f9fa;
+    }
+
+    /* Анимации */
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+        100% { transform: translateY(0px); }
+    }
+
+    @keyframes slideInLeft {
+        from { opacity: 0; transform: translateX(-50px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes slideInRight {
+        from { opacity: 0; transform: translateX(50px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes scaleIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    /* ===== ГЕРОЙ СЕКЦИЯ ===== */
+    .hero-section {
+        position: relative;
+        min-height: 600px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 40px;
+        overflow: hidden;
+        margin-bottom: 60px;
+        display: flex;
+        align-items: center;
+        padding: 60px 40px;
+        box-shadow: 0 30px 60px rgba(102, 126, 234, 0.3);
+    }
+
+    .hero-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" fill-opacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+        background-size: cover;
+        opacity: 0.2;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 600px;
+        color: white;
+        animation: slideInLeft 1s ease;
+    }
+
+    .hero-badge {
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(10px);
+        padding: 8px 20px;
+        border-radius: 50px;
+        display: inline-block;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 20px;
+        text-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .hero-title span {
+        background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block;
+    }
+
+    .hero-text {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        margin-bottom: 30px;
+        line-height: 1.6;
+    }
+
+    .hero-stats {
+        display: flex;
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .hero-stat {
+        text-align: center;
+    }
+
+    .hero-stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+        background: rgba(255,255,255,0.2);
+        padding: 10px 20px;
+        border-radius: 50px;
+        display: inline-block;
+        margin-bottom: 8px;
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .hero-stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .hero-image {
+        position: absolute;
+        right: 40px;
+        bottom: 0;
+        width: 500px;
+        height: 500px;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="80" fill="rgba(255,255,255,0.1)"/><circle cx="100" cy="100" r="60" fill="rgba(255,255,255,0.15)"/><circle cx="100" cy="100" r="40" fill="rgba(255,255,255,0.2)"/><circle cx="100" cy="100" r="20" fill="rgba(255,255,255,0.25)"/></svg>') no-repeat center;
+        background-size: contain;
+        animation: float 8s ease-in-out infinite;
+        filter: drop-shadow(0 20px 30px rgba(0,0,0,0.2));
+    }
+
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 40px 20px;
+            min-height: auto;
+        }
+        .hero-title {
+            font-size: 2.2rem;
+        }
+        .hero-image {
+            display: none;
+        }
+        .hero-stats {
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+    }
+
+    /* ===== ОСОБЕННОСТИ ===== */
+    .features-section {
+        margin-bottom: 60px;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .section-subtitle {
+        color: var(--primary);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 10px;
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 20px;
+    }
+
+    .section-title span {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .feature-card {
+        background: white;
+        border-radius: 30px;
+        padding: 40px 30px;
+        text-align: center;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.05);
+        animation: scaleIn 0.6s ease;
+        animation-fill-mode: both;
+    }
+
+    .feature-card:nth-child(1) { animation-delay: 0.1s; }
+    .feature-card:nth-child(2) { animation-delay: 0.2s; }
+    .feature-card:nth-child(3) { animation-delay: 0.3s; }
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 30px 60px rgba(102, 126, 234, 0.15);
+    }
+
+    .feature-icon {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        border-radius: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 25px;
+        font-size: 3rem;
+        color: white;
+        box-shadow: 0 15px 30px rgba(102, 126, 234, 0.3);
+        transition: all 0.3s;
+    }
+
+    .feature-card:hover .feature-icon {
+        transform: rotate(360deg);
+    }
+
+    .feature-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        color: var(--dark);
+    }
+
+    .feature-text {
+        color: #6c757d;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+        .features-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+    }
+
+    /* ===== БЛОКИ ДЕЙСТВИЙ ===== */
+    .actions-section {
+        margin-bottom: 60px;
+    }
+
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+    }
+
+    .action-block {
+        border-radius: 40px;
+        padding: 50px 40px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s;
+        animation: slideInLeft 0.8s ease;
+    }
+
+    .action-block.driver {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .action-block.passenger {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+
+    .action-block:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+    }
+
+    .action-bg {
+        position: absolute;
+        top: 0;
+        right: 0;
+        font-size: 15rem;
+        opacity: 0.1;
+        transform: rotate(15deg);
+        transition: all 0.3s;
+    }
+
+    .action-block:hover .action-bg {
+        transform: rotate(25deg) scale(1.2);
+    }
+
+    .action-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+    }
+
+    .action-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 15px;
+    }
+
+    .action-text {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-bottom: 30px;
+        max-width: 300px;
+    }
+
+    .action-text small {
+        font-size: 0.9rem;
+        opacity: 0.8;
+        display: block;
+        margin-top: 10px;
+    }
+
+    .action-btn {
+        display: inline-block;
+        padding: 15px 40px;
+        background: white;
+        border-radius: 50px;
+        color: var(--dark);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 1.1rem;
+        transition: all 0.3s;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .action-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        color: var(--primary);
+    }
+
+    @media (max-width: 768px) {
+        .actions-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        .action-block {
+            padding: 30px 20px;
+        }
+        .action-title {
+            font-size: 2rem;
+        }
+    }
+
+    /* ===== БЛОГ / НОВОСТИ ===== */
+    .blog-section {
+        margin-bottom: 60px;
+    }
+
+    .blog-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+        margin-top: 40px;
+    }
+
+    .blog-card {
+        background: white;
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        transition: all 0.3s;
+        border: 1px solid rgba(0,0,0,0.05);
+        cursor: pointer;
+    }
+
+    .blog-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 30px 60px rgba(102, 126, 234, 0.15);
+    }
+
+    .blog-image {
+        height: 160px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        color: white;
+    }
+
+    .blog-content {
+        padding: 25px;
+    }
+
+    .blog-category {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+    }
+
+    .blog-category.news { background: #e3f2fd; color: #1976d2; }
+    .blog-category.update { background: #e8f5e9; color: #388e3c; }
+    .blog-category.ferry { background: #fff3e0; color: #f57c00; }
+    .blog-category.tips { background: #f3e5f5; color: #7b1fa2; }
+
+    .blog-date {
+        color: #6c757d;
+        font-size: 0.8rem;
+        margin-bottom: 8px;
+    }
+
+    .blog-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+        color: var(--dark);
+        line-height: 1.4;
+    }
+
+    .blog-excerpt {
+        color: #6c757d;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
+
+    .blog-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 15px;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .blog-views {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #adb5bd;
+        font-size: 0.85rem;
+    }
+
+    .blog-read-more {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .blog-read-more:hover {
+        gap: 8px;
+    }
+
+    @media (max-width: 768px) {
+        .blog-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+    }
+
+    /* ===== СТАТИСТИКА ===== */
+    .stats-section {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        border-radius: 40px;
+        padding: 60px 40px;
+        color: white;
+        margin-bottom: 60px;
+        text-align: center;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 30px;
+        margin-top: 40px;
+    }
+
+    .stats-item {
+        padding: 20px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 30px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .stats-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 8px;
+    }
+
+    .stats-label {
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .stats-number {
+            font-size: 1.8rem;
+        }
+    }
+
+    /* ===== CTA СЕКЦИЯ ===== */
+    .cta-section {
+        background: white;
+        border-radius: 40px;
+        padding: 60px 40px;
+        text-align: center;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+        margin-bottom: 60px;
+    }
+
+    .cta-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 20px;
+    }
+
+    .cta-text {
+        font-size: 1.2rem;
+        color: #6c757d;
+        margin-bottom: 30px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .cta-buttons {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .cta-btn {
+        padding: 18px 50px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+
+    .cta-btn-primary {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        color: white;
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .cta-btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    .cta-btn-secondary {
+        background: white;
+        color: var(--primary);
+        border: 2px solid var(--primary);
+    }
+
+    .cta-btn-secondary:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateY(-3px);
+    }
+
+    /* ===== FAQ ===== */
+    .faq-section {
+        margin-bottom: 60px;
+    }
+
+    .faq-grid {
+        max-width: 800px;
+        margin: 40px auto 0;
+    }
+
+    .faq-item {
+        background: white;
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 15px;
+        border: 1px solid #e9ecef;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .faq-item:hover {
+        border-color: var(--primary);
+        transform: translateX(5px);
+    }
+
+    .faq-question {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .faq-answer {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #e9ecef;
+        color: #6c757d;
+        line-height: 1.6;
+        display: none;
+    }
+
+    .faq-item.active .faq-answer {
+        display: block;
+    }
+
+    .faq-item.active .faq-icon {
+        transform: rotate(180deg);
+    }
+
+    /* ===== МОДАЛЬНОЕ ОКНО НОВОСТИ ===== */
+    .modal-news {
+        max-width: 800px;
+    }
+
+    .modal-news .modal-content {
+        border-radius: 30px;
+        overflow: hidden;
+    }
+
+    .modal-news-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        color: white;
+        padding: 40px;
+        position: relative;
+    }
+
+    .modal-news-category {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        padding: 6px 16px;
+        border-radius: 30px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .modal-news-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        padding-right: 100px;
+    }
+
+    .modal-news-meta {
+        display: flex;
+        gap: 20px;
+        opacity: 0.9;
+        font-size: 0.9rem;
+    }
+
+    .modal-news-body {
+        padding: 40px;
+        font-size: 1.1rem;
+        line-height: 1.8;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ГЕРОЙ СЕКЦИЯ -->
+<section class="hero-section">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+        <span class="hero-badge">
+            <i class="bi bi-star-fill"></i> Создан в 2026 году
+        </span>
+        <h1 class="hero-title">
+            Добирайся через <span>бухту</span><br>быстро и удобно
+        </h1>
+        <p class="hero-text">
+            Север-Юг — сервис поиска попутчиков в Севастополе.
+            Водители предлагают свободные места (бесплатно или за символическую плату),
+            пассажиры находят попутный транспорт. Просто, быстро и удобно!
+        </p>
+        <div class="hero-stats" id="heroStats">
+            <div class="hero-stat">
+                <div class="hero-stat-number">...</div>
+                <div class="hero-stat-label">поездок</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-number">...</div>
+                <div class="hero-stat-label">водителей</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-number">...</div>
+                <div class="hero-stat-label">пассажиров</div>
+            </div>
+        </div>
+        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+            <a href="#actions" class="cta-btn cta-btn-primary" style="padding: 15px 40px;">
+                <i class="bi bi-car-front"></i> Начать поездку
+            </a>
+            <a href="#how-it-works" class="cta-btn cta-btn-secondary" style="padding: 15px 40px;">
+                <i class="bi bi-play-circle"></i> Как это работает
+            </a>
+        </div>
+    </div>
+    <div class="hero-image"></div>
+</section>
+
+<!-- ОСОБЕННОСТИ -->
+<section class="features-section" id="how-it-works">
+    <div class="section-header">
+        <div class="section-subtitle">Почему выбирают нас</div>
+        <h2 class="section-title">
+            <span>Север-Юг</span> в деталях
+        </h2>
+    </div>
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="bi bi-lightning-charge"></i>
+            </div>
+            <h3 class="feature-title">Мгновенный поиск</h3>
+            <p class="feature-text">
+                Находите попутчиков за секунды. Умный алгоритм подбирает оптимальные маршруты с учетом объезда бухты.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="bi bi-shield-check"></i>
+            </div>
+            <h3 class="feature-title">Безопасность</h3>
+            <p class="feature-text">
+                Верификация по телефону, рейтинги, отзывы. Встроенный чат для обсуждения деталей поездки.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="bi bi-gift"></i>
+            </div>
+            <h3 class="feature-title">Гибкая оплата</h3>
+            <p class="feature-text">
+                Водитель сам решает: везти бесплатно или указать символическую сумму. 100% бесплатный сервис.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- БЛОКИ ДЕЙСТВИЙ -->
+<section class="actions-section" id="actions">
+    <div class="actions-grid">
+        <!-- Блок для водителя -->
+        <div class="action-block driver">
+            <div class="action-bg">🚗</div>
+            <div class="action-icon">🚗</div>
+            <h2 class="action-title">Я водитель</h2>
+            <p class="action-text">
+                Едете на машине и есть свободные места?
+                Поделитесь ими с попутчиками! Можно везти бесплатно или указать сумму за поездку.
+                <small>💰 Вы сами выбираете цену</small>
+            </p>
+            {% if user %}
+            <a href="/create_ride" class="action-btn">
+                <i class="bi bi-plus-circle"></i> Создать поездку
+            </a>
+            {% else %}
+            <a href="/auth/login" class="action-btn">
+                <i class="bi bi-box-arrow-in-right"></i> Войти и создать
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Блок для пассажира -->
+        <div class="action-block passenger">
+            <div class="action-bg">👤</div>
+            <div class="action-icon">👤</div>
+            <h2 class="action-title">Я пассажир</h2>
+            <p class="action-text">
+                Нужно добраться через бухту?
+                Найдите попутный транспорт! Многие водители готовы подвезти бесплатно.
+                <small>🚌 Экономьте на такси</small>
+            </p>
+            {% if user %}
+            <a href="/search" class="action-btn">
+                <i class="bi bi-search"></i> Найти поездку
+            </a>
+            {% else %}
+            <a href="/auth/login" class="action-btn">
+                <i class="bi bi-box-arrow-in-right"></i> Войти и найти
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- СТАТИСТИКА -->
+<section class="stats-section" id="stats">
+    <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 20px;">Север-Юг в цифрах</h2>
+    <p style="font-size: 1.1rem; opacity: 0.9; max-width: 600px; margin: 0 auto;">
+        Каждый день мы помогаем людям добираться до нужного места
+    </p>
+
+    <div class="stats-grid" id="statsGrid">
+        <div class="stats-item">
+            <div class="stats-number">...</div>
+            <div class="stats-label">успешных поездок</div>
+        </div>
+        <div class="stats-item">
+            <div class="stats-number">...</div>
+            <div class="stats-label">водителей</div>
+        </div>
+        <div class="stats-item">
+            <div class="stats-number">...</div>
+            <div class="stats-label">пассажиров</div>
+        </div>
+        <div class="stats-item">
+            <div class="stats-number">...</div>
+            <div class="stats-label">мин. поиск</div>
+        </div>
+    </div>
+</section>
+
+<!-- БЛОГ / НОВОСТИ -->
+<section class="blog-section">
+    <div class="section-header">
+        <div class="section-subtitle">Будьте в курсе</div>
+        <h2 class="section-title">
+            <span>Новости</span> и обновления
+        </h2>
+    </div>
+
+    <div class="blog-grid" id="newsGrid">
+        <!-- Сюда загрузятся новости -->
+    </div>
+</section>
+
+<!-- CTA СЕКЦИЯ -->
+<section class="cta-section">
+    <h2 class="cta-title">Готовы начать?</h2>
+    <p class="cta-text">
+        Присоединяйтесь к тысячам пользователей, которые уже пользуются нашим сервисом
+    </p>
+    <div class="cta-buttons">
+        <a href="/auth/register" class="cta-btn cta-btn-primary">
+            <i class="bi bi-person-plus"></i> Зарегистрироваться
+        </a>
+        <a href="#actions" class="cta-btn cta-btn-secondary">
+            <i class="bi bi-question-circle"></i> Узнать больше
+        </a>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section">
+    <div class="section-header">
+        <div class="section-subtitle">Часто задаваемые вопросы</div>
+        <h2 class="section-title">
+            <span>FAQ</span>
+        </h2>
+    </div>
+
+    <div class="faq-grid">
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>Как найти попутчика?</span>
+                <i class="bi bi-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                Нажмите "Найти поездку", укажите на карте откуда и куда нужно ехать.
+                Система покажет всех водителей, которые едут по вашему маршруту.
+                Выберите подходящего и отправьте заявку.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>Сколько стоит?</span>
+                <i class="bi bi-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                Сервис полностью бесплатный! Водители сами устанавливают цену за поездку.
+                Многие возят бесплатно, другие просят небольшую компенсацию за бензин
+                (обычно 50-150 рублей). Вы всегда видите цену до бронирования.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>Как создать свою поездку?</span>
+                <i class="bi bi-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                Зарегистрируйтесь или войдите в профиль, нажмите "Создать поездку",
+                укажите маршрут на карте, время, количество свободных мест и цену
+                (можно оставить 0 для бесплатной поездки). После создания пассажиры
+                смогут отправлять вам заявки.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>Безопасно ли это?</span>
+                <i class="bi bi-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                Мы заботимся о безопасности: есть рейтинги, отзывы, верификация по телефону.
+                Вы всегда можете пообщаться в чате перед поездкой, уточнить детали.
+                В случае проблем обращайтесь в поддержку.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>Что такое регулярные поездки?</span>
+                <i class="bi bi-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                Это поездки, которые создаются автоматически по расписанию.
+                Например, если вы ездите на работу каждый день в одно и то же время,
+                настройте регулярную поездку, и она будет создаваться сама.
+                Очень удобно для постоянных маршрутов!
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>Как работает система оплаты?</span>
+                <i class="bi bi-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                Мы не берем комиссию! Водитель указывает цену при создании поездки.
+                Если цена 0 ₽ - поездка бесплатная. Расчет происходит напрямую между
+                водителем и пассажирами (наличные или перевод). Сервис ничего не берет.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Модальное окно для новостей -->
+<div class="modal fade" id="newsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content modal-news">
+            <div class="modal-news-header" id="modalHeader">
+                <span class="modal-news-category" id="modalCategory">Новости</span>
+                <h2 class="modal-news-title" id="modalTitle">Заголовок</h2>
+                <div class="modal-news-meta">
+                    <span id="modalDate"></span>
+                    <span id="modalViews"></span>
+                </div>
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-4" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-news-body" id="modalContent">
+                Содержимое...
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Загрузка статистики
+    function loadStats() {
+        fetch('/api/stats')
+            .then(response => response.json())
+            .then(stats => {
+                // Обновляем герой
+                document.querySelector('#heroStats .hero-stat:nth-child(1) .hero-stat-number').textContent = stats.total_rides + '+';
+                document.querySelector('#heroStats .hero-stat:nth-child(2) .hero-stat-number').textContent = stats.total_drivers + '+';
+                document.querySelector('#heroStats .hero-stat:nth-child(3) .hero-stat-number').textContent = stats.total_passengers + '+';
+
+                // Обновляем статистику
+                document.querySelector('#statsGrid .stats-item:nth-child(1) .stats-number').textContent = stats.total_rides + '+';
+                document.querySelector('#statsGrid .stats-item:nth-child(2) .stats-number').textContent = stats.total_drivers + '+';
+                document.querySelector('#statsGrid .stats-item:nth-child(3) .stats-number').textContent = stats.total_passengers + '+';
+                document.querySelector('#statsGrid .stats-item:nth-child(4) .stats-number').textContent = stats.avg_search_time + ' мин';
+            });
+    }
+
+    // Загрузка новостей
+    function loadNews() {
+        fetch('/api/news')
+            .then(response => response.json())
+            .then(news => {
+                const grid = document.getElementById('newsGrid');
+                let html = '';
+
+                news.forEach(item => {
+                    const categoryClass = {
+                        'news': 'news',
+                        'update': 'update',
+                        'ferry': 'ferry',
+                        'tips': 'tips'
+                    }[item.category] || 'news';
+
+                    html += `
+                        <div class="blog-card" onclick="showNews(${item.id})">
+                            <div class="blog-image">${item.image || '📰'}</div>
+                            <div class="blog-content">
+                                <span class="blog-category ${categoryClass}">${item.category}</span>
+                                <div class="blog-date">${item.date}</div>
+                                <h3 class="blog-title">${item.title}</h3>
+                                <p class="blog-excerpt">${item.excerpt}</p>
+                                <div class="blog-meta">
+                                    <div class="blog-views">
+                                        <i class="bi bi-eye"></i> ${item.views}
+                                    </div>
+                                    <span class="blog-read-more">
+                                        Читать <i class="bi bi-arrow-right"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                grid.innerHTML = html;
+            });
+    }
+
+    // Показать новость
+    function showNews(newsId) {
+        fetch(`/api/news/${newsId}`)
+            .then(response => response.json())
+            .then(item => {
+                document.getElementById('modalTitle').textContent = item.title;
+                document.getElementById('modalContent').innerHTML = item.content.replace(/\n/g, '<br>');
+                document.getElementById('modalDate').textContent = item.date;
+                document.getElementById('modalViews').textContent = `👁 ${item.views} просмотров`;
+                document.getElementById('modalCategory').textContent = {
+                    'news': '📰 Новость',
+                    'update': '✨ Обновление',
+                    'ferry': '🚢 Паром',
+                    'tips': '💡 Совет'
+                }[item.category] || 'Новость';
+
+                const modal = new bootstrap.Modal(document.getElementById('newsModal'));
+                modal.show();
+
+                // Обновляем просмотры на странице
+                loadNews();
+            });
+    }
+
+    // FAQ - добавляем обработчики
+    document.querySelectorAll('.faq-item').forEach(item => {
+        item.addEventListener('click', function() {
+            this.classList.toggle('active');
+        });
+    });
+
+    // Загружаем данные
+    loadStats();
+    loadNews();
+</script>
+{% endblock %}

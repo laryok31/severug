@@ -1,0 +1,759 @@
+{% extends "base.html" %}
+
+{% block title %}Профиль | Север-Юг{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ===== ОСНОВНЫЕ СТИЛИ ===== */
+    :root {
+        --primary: #667eea;
+        --secondary: #764ba2;
+        --success: #28a745;
+        --warning: #ffc107;
+        --danger: #dc3545;
+        --dark: #343a40;
+        --light: #f8f9fa;
+    }
+
+    /* Плавное появление */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+        animation: fadeIn 0.3s ease forwards;
+    }
+
+    /* ===== ПРОФИЛЬ ===== */
+    .profile-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        border-radius: 24px;
+        padding: 24px;
+        margin-bottom: 24px;
+        color: white;
+    }
+
+    .profile-row {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+
+    .profile-avatar {
+        width: 90px;
+        height: 90px;
+        border-radius: 22px;
+        background: white;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.8rem;
+        font-weight: bold;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    }
+
+    .profile-info {
+        flex: 1;
+    }
+
+    .profile-name {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .profile-phone {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin-bottom: 12px;
+    }
+
+    .stats-row {
+        display: flex;
+        gap: 30px;
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        opacity: 0.8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* ===== БЫСТРЫЕ ДЕЙСТВИЯ ===== */
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+
+    .action-card {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 16px;
+        padding: 16px 8px;
+        text-align: center;
+        text-decoration: none;
+        color: var(--dark);
+        transition: all 0.2s;
+    }
+
+    .action-card:hover {
+        transform: translateY(-3px);
+        border-color: var(--primary);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.1);
+    }
+
+    .action-icon {
+        font-size: 1.6rem;
+        color: var(--primary);
+        margin-bottom: 6px;
+    }
+
+    .action-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    /* ===== АВТОМОБИЛЬ ===== */
+    .car-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        padding: 20px;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .car-icon {
+        width: 60px;
+        height: 60px;
+        background: rgba(255,255,255,0.15);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+    }
+
+    .car-details {
+        flex: 1;
+    }
+
+    .car-model {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .car-number {
+        background: rgba(255,255,255,0.2);
+        padding: 4px 12px;
+        border-radius: 30px;
+        display: inline-block;
+        font-family: monospace;
+        font-size: 0.9rem;
+    }
+
+    /* ===== ПК ВЕРСИЯ (2 КОЛОНКИ) ===== */
+    @media (min-width: 992px) {
+        .profile-two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .left-column {
+            position: sticky;
+            top: 90px;
+        }
+    }
+
+    /* ===== ЗАГОЛОВКИ ===== */
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 24px 0 16px;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--dark);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .section-title i {
+        color: var(--primary);
+    }
+
+    /* ===== ИЗБРАННОЕ ===== */
+    .favorites-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .favorite-item {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 16px;
+        padding: 14px;
+        transition: all 0.2s;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .favorite-item:hover {
+        border-color: #ffc107;
+        transform: translateY(-2px);
+    }
+
+    .favorite-type {
+        font-size: 1.2rem;
+        margin-bottom: 6px;
+    }
+
+    .favorite-title {
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .favorite-sub {
+        font-size: 0.75rem;
+        color: #6c757d;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .favorite-delete {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--danger);
+        color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    .favorite-item:hover .favorite-delete {
+        opacity: 1;
+    }
+
+    /* ===== ДОСТИЖЕНИЯ (КОМПАКТНО) ===== */
+    .achievements-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .achievement-badge {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 30px;
+        padding: 6px 14px;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+    }
+
+    .achievement-badge.locked {
+        opacity: 0.4;
+    }
+
+    .achievement-badge:hover {
+        border-color: #ffc107;
+        transform: translateY(-2px);
+    }
+
+    /* ===== ПОЕЗДКИ ===== */
+    .rides-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .ride-card {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 20px;
+        padding: 18px;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .ride-card:hover {
+        border-color: var(--primary);
+        transform: translateX(4px);
+    }
+
+    .ride-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .ride-route {
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    .ride-meta {
+        display: flex;
+        gap: 16px;
+        font-size: 0.85rem;
+        color: #6c757d;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+    }
+
+    .ride-meta span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .ride-actions {
+        display: flex;
+        gap: 6px;
+    }
+
+    .btn-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+        color: #495057;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .btn-icon:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-approved { background: #d4edda; color: #155724; }
+    .status-completed { background: #e2e3e5; color: #383d41; }
+
+    /* ===== РЕЙТИНГ ===== */
+    .rating-prompt {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        border-radius: 12px;
+        padding: 12px;
+        margin-top: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    /* ===== МОБИЛЬНАЯ ВЕРСИЯ ===== */
+    @media (max-width: 768px) {
+        .actions-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .favorites-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .achievements-row {
+            gap: 6px;
+        }
+
+        .achievement-badge {
+            padding: 4px 10px;
+            font-size: 0.75rem;
+        }
+
+        .ride-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Шапка профиля -->
+<div class="profile-header fade-in">
+    <div class="profile-row">
+        <div class="profile-avatar">{{ user.name[0] }}</div>
+        <div class="profile-info">
+            <div class="profile-name">{{ user.name }}</div>
+            <div class="profile-phone">{{ user.phone }}</div>
+            <div class="stats-row">
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.as_driver }}</div>
+                    <div class="stat-label">поездок</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.as_passenger }}</div>
+                    <div class="stat-label">попуток</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.total }}</div>
+                    <div class="stat-label">всего</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Быстрые действия -->
+<div class="actions-grid">
+    <a href="/create_ride" class="action-card fade-in" style="animation-delay: 0.1s">
+        <div class="action-icon"><i class="bi bi-plus-circle"></i></div>
+        <div class="action-label">Создать</div>
+    </a>
+    <a href="/search" class="action-card fade-in" style="animation-delay: 0.15s">
+        <div class="action-icon"><i class="bi bi-search"></i></div>
+        <div class="action-label">Найти</div>
+    </a>
+    <a href="/regular_rides" class="action-card fade-in" style="animation-delay: 0.2s">
+        <div class="action-icon"><i class="bi bi-calendar-week"></i></div>
+        <div class="action-label">Регулярные</div>
+    </a>
+    <a href="/profile/edit" class="action-card fade-in" style="animation-delay: 0.25s">
+        <div class="action-icon"><i class="bi bi-gear"></i></div>
+        <div class="action-label">Настройки</div>
+    </a>
+</div>
+
+<!-- ДВЕ КОЛОНКИ ДЛЯ ПК -->
+<div class="profile-two-columns">
+    <!-- Левая колонка (профиль, авто, избранное, достижения) -->
+    <div class="left-column">
+        <!-- Автомобиль (если водитель) -->
+        {% if user.is_driver and user.car_model %}
+        <div class="car-card fade-in" style="animation-delay: 0.3s">
+            <div class="car-icon"><i class="bi bi-car-front"></i></div>
+            <div class="car-details">
+                <div class="car-model">{{ user.car_color }} {{ user.car_model }}</div>
+                <div class="car-number">{{ user.car_number }}</div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Избранное -->
+        <div class="section-header fade-in" style="animation-delay: 0.35s">
+            <h6 class="section-title"><i class="bi bi-star-fill text-warning"></i> Избранное</h6>
+            <span class="badge bg-primary" id="favoritesCount">0</span>
+        </div>
+
+        <div class="favorites-grid" id="favoritesGrid"></div>
+
+        <!-- Достижения (компактные) -->
+        <div class="section-header fade-in" style="animation-delay: 0.4s">
+            <h6 class="section-title"><i class="bi bi-trophy-fill text-warning"></i> Достижения</h6>
+        </div>
+
+        <div class="achievements-row" id="achievementsRow"></div>
+
+        <!-- Настройки приватности (новое) -->
+        <div class="section-header fade-in" style="animation-delay: 0.45s">
+            <h6 class="section-title"><i class="bi bi-shield-lock"></i> Приватность</h6>
+        </div>
+
+        <div class="d-flex gap-3 flex-wrap mb-4">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="hidePhone"
+                       {% if user.hide_phone %}checked{% endif %}>
+                <label class="form-check-label">Скрыть телефон</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="onlyVerified"
+                       {% if user.only_verified %}checked{% endif %}>
+                <label class="form-check-label">Только с верификацией</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Правая колонка (поездки) -->
+    <div class="right-column">
+        <!-- Активные поездки -->
+        <div class="section-header fade-in" style="animation-delay: 0.5s">
+            <h6 class="section-title"><i class="bi bi-car-front"></i> Активные поездки</h6>
+            <span class="badge bg-success" id="activeCount">0</span>
+        </div>
+
+        <div class="rides-list" id="activeRidesList"></div>
+
+        <!-- История поездок -->
+        <div class="section-header fade-in" style="animation-delay: 0.55s">
+            <h6 class="section-title"><i class="bi bi-archive"></i> История</h6>
+            <button class="btn btn-sm btn-outline-primary" onclick="loadHistory()">
+                <i class="bi bi-arrow-repeat"></i>
+            </button>
+        </div>
+
+        <div class="rides-list" id="historyRidesList"></div>
+    </div>
+</div>
+
+<script>
+    // Данные пользователя
+    const userId = {{ user.id }};
+    const isDriver = {{ 'true' if user.is_driver else 'false' }};
+
+    // Загрузка избранного
+    function loadFavorites() {
+        Promise.all([
+            fetch('/api/favorite_routes').then(r => r.json()),
+            fetch('/api/favorite_drivers').then(r => r.json())
+        ]).then(([routes, drivers]) => {
+            const grid = document.getElementById('favoritesGrid');
+            const countSpan = document.getElementById('favoritesCount');
+            const total = routes.length + drivers.length;
+            countSpan.textContent = total;
+
+            if (total === 0) {
+                grid.innerHTML = '<p class="text-muted">Нет избранного</p>';
+                return;
+            }
+
+            let html = '';
+
+            routes.forEach(route => {
+                html += `
+                    <div class="favorite-item" onclick="window.location.href='/api/search_favorite/${route.id}'">
+                        <button class="favorite-delete" onclick="event.stopPropagation(); deleteFavorite(${route.id})">✕</button>
+                        <div class="favorite-type">📍</div>
+                        <div class="favorite-title">${route.name || 'Маршрут'}</div>
+                        <div class="favorite-sub">${route.from_place.split(',')[0]}</div>
+                        <div class="favorite-sub">→ ${route.to_place.split(',')[0]}</div>
+                    </div>
+                `;
+            });
+
+            drivers.forEach(driver => {
+                html += `
+                    <div class="favorite-item" onclick="window.location.href='/search?driver=${driver.id}'">
+                        <button class="favorite-delete" onclick="event.stopPropagation(); deleteFavoriteDriver(${driver.id})">✕</button>
+                        <div class="favorite-type">👤</div>
+                        <div class="favorite-title">${driver.name}</div>
+                        <div class="favorite-sub">⭐ ${driver.rating}</div>
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+        });
+    }
+
+    // Загрузка достижений
+    function loadAchievements() {
+        fetch('/api/achievements')
+            .then(response => response.json())
+            .then(data => {
+                const row = document.getElementById('achievementsRow');
+                const list = [
+                    { name: 'Новичок', icon: '🌱', unlocked: data.first_ride },
+                    { name: 'Водитель', icon: '🚗', unlocked: data.driver_10 },
+                    { name: 'Пассажир', icon: '👤', unlocked: data.passenger_10 },
+                    { name: 'Звезда', icon: '⭐', unlocked: data.rating_50 },
+                    { name: 'Дружный', icon: '🤝', unlocked: data.companions_5 },
+                    { name: 'Профи', icon: '🏆', unlocked: data.total_50 }
+                ];
+
+                let html = '';
+                list.forEach(a => {
+                    html += `
+                        <span class="achievement-badge ${a.unlocked ? '' : 'locked'}">
+                            ${a.icon} ${a.name}
+                        </span>
+                    `;
+                });
+                row.innerHTML = html;
+            });
+    }
+
+    // Загрузка активных поездок
+    function loadActiveRides() {
+        fetch('/api/active_rides')
+            .then(response => response.json())
+            .then(rides => {
+                const list = document.getElementById('activeRidesList');
+                const countSpan = document.getElementById('activeCount');
+                countSpan.textContent = rides.length;
+
+                if (rides.length === 0) {
+                    list.innerHTML = '<p class="text-muted py-3">Нет активных поездок</p>';
+                    return;
+                }
+
+                let html = '';
+                rides.forEach(ride => {
+                    const isDriverRide = ride.driver_id === userId;
+
+                    html += `
+                        <div class="ride-card" onclick="window.location.href='/ride/${ride.id}'">
+                            <div class="ride-header">
+                                <span class="ride-route">${ride.from_place} → ${ride.to_place}</span>
+                                <div class="ride-actions" onclick="event.stopPropagation()">
+                                    <a href="/chat/${ride.id}" class="btn-icon" title="Чат"><i class="bi bi-chat"></i></a>
+                                    ${!isDriverRide ? `
+                                        <a href="tel:${ride.driver_phone}" class="btn-icon" title="Позвонить"><i class="bi bi-telephone"></i></a>
+                                    ` : ''}
+                                </div>
+                            </div>
+
+                            <div class="ride-meta">
+                                <span><i class="bi bi-clock"></i> ${ride.time}</span>
+                                <span><i class="bi bi-people"></i> ${ride.seats || '?'} мест</span>
+                                <span>${ride.price === 0 ? 'Бесплатно' : ride.price + ' ₽'}</span>
+                            </div>
+
+                            ${isDriverRide ? `
+                                <span class="status-badge status-pending">⏳ ${ride.pending_bookings || 0} заявок</span>
+                            ` : `
+                                <span class="status-badge status-approved">✅ Подтверждено</span>
+                            `}
+                        </div>
+                    `;
+                });
+                list.innerHTML = html;
+            });
+    }
+
+    // Загрузка истории
+    function loadHistory() {
+        fetch('/api/ride_history')
+            .then(response => response.json())
+            .then(data => {
+                const list = document.getElementById('historyRidesList');
+
+                if (data.as_driver.length === 0 && data.as_passenger.length === 0) {
+                    list.innerHTML = '<p class="text-muted py-3">История пуста</p>';
+                    return;
+                }
+
+                let html = '';
+
+                data.as_driver.forEach(ride => {
+                    html += `
+                        <div class="ride-card" onclick="window.location.href='/ride/${ride.id}'">
+                            <div class="ride-header">
+                                <span class="ride-route">${ride.from} → ${ride.to}</span>
+                                <span class="status-badge status-completed">🚗 Завершена</span>
+                            </div>
+                            <div class="ride-meta">
+                                <span><i class="bi bi-clock"></i> ${ride.time}</span>
+                            </div>
+                            ${!ride.rated ? `
+                                <div class="rating-prompt">
+                                    <span><i class="bi bi-star-fill text-warning"></i> Оцените</span>
+                                    <a href="/rate_ride/${ride.id}/passengers" class="btn btn-warning btn-sm">Оценить</a>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+
+                data.as_passenger.forEach(ride => {
+                    html += `
+                        <div class="ride-card" onclick="window.location.href='/ride/${ride.id}'">
+                            <div class="ride-header">
+                                <span class="ride-route">${ride.from} → ${ride.to}</span>
+                                <span class="status-badge status-completed">👤 Завершена</span>
+                            </div>
+                            <div class="ride-meta">
+                                <span><i class="bi bi-clock"></i> ${ride.time}</span>
+                            </div>
+                            ${!ride.rated ? `
+                                <div class="rating-prompt">
+                                    <span><i class="bi bi-star-fill text-warning"></i> Оцените</span>
+                                    <a href="/rate_ride/${ride.id}" class="btn btn-warning btn-sm">Оценить</a>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+
+                list.innerHTML = html;
+            });
+    }
+
+    // Функции удаления
+    function deleteFavorite(id) {
+        if (confirm('Удалить из избранного?')) {
+            fetch(`/api/delete_favorite/${id}`, {method: 'DELETE'})
+                .then(() => loadFavorites());
+        }
+    }
+
+    function deleteFavoriteDriver(id) {
+        if (confirm('Удалить водителя из избранного?')) {
+            fetch('/api/favorite_driver', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ driver_id: id })
+            }).then(() => loadFavorites());
+        }
+    }
+
+    // Инициализация
+    loadFavorites();
+    loadAchievements();
+    loadActiveRides();
+    loadHistory();
+</script>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Подтверждение | Север-Юг{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body p-5">
+                <h2 class="text-center mb-4">✉️ Подтверждение</h2>
+                <p class="text-center">Код отправлен на {{ phone }}</p>
+
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-danger">{{ message }}</div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                <form method="POST">
+                    <div class="mb-4">
+                        <label class="form-label">Введите код из SMS</label>
+                        <input type="text"
+                               class="form-control form-control-lg text-center"
+                               name="code"
+                               maxlength="6"
+                               placeholder="______"
+                               required>
+                    </div>
+
+                    <button type="submit" class="btn btn-success btn-lg w-100">
+                        Подтвердить
+                    </button>
+                </form>
+
+                <div class="text-center mt-4">
+                    <a href="/auth/login" class="text-decoration-none">← Назад</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+
+{% block title %}Чаты | Север-Юг{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chats-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .chats-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 30px;
+    }
+
+    .chats-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .chats-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .chat-item {
+        background: white;
+        border-radius: 20px;
+        padding: 18px;
+        border: 1px solid #f1f5f9;
+        transition: all 0.3s;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .chat-item:hover {
+        border-color: #4f46e5;
+        transform: translateX(5px);
+        box-shadow: 0 10px 30px rgba(79, 70, 229, 0.1);
+    }
+
+    .chat-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 600;
+        flex-shrink: 0;
+        position: relative;
+    }
+
+    .online-indicator {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 12px;
+        height: 12px;
+        background: #10b981;
+        border-radius: 50%;
+        border: 2px solid white;
+    }
+
+    .chat-info {
+        flex: 1;
+    }
+
+    .chat-header-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 5px;
+    }
+
+    .chat-name {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #1e293b;
+    }
+
+    .chat-time {
+        font-size: 0.8rem;
+        color: #94a3b8;
+    }
+
+    .chat-preview {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .chat-last-message {
+        color: #64748b;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 300px;
+    }
+
+    .unread-badge {
+        background: #4f46e5;
+        color: white;
+        border-radius: 30px;
+        min-width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 0 6px;
+    }
+
+    .chat-ride-info {
+        font-size: 0.75rem;
+        color: #818cf8;
+        margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .empty-chats {
+        text-align: center;
+        padding: 80px 20px;
+        background: white;
+        border-radius: 30px;
+        border: 1px solid #f1f5f9;
+    }
+
+    .empty-chats i {
+        font-size: 4rem;
+        color: #cbd5e1;
+        margin-bottom: 20px;
+    }
+
+    .empty-chats h3 {
+        color: #1e293b;
+        margin-bottom: 10px;
+    }
+
+    .empty-chats p {
+        color: #64748b;
+        margin-bottom: 20px;
+    }
+
+    .empty-chats .btn {
+        padding: 12px 30px;
+        border-radius: 30px;
+        background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%);
+        color: white;
+        border: none;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chats-container">
+    <div class="chats-header">
+        <h1><i class="bi bi-chat"></i> Чаты</h1>
+        <span class="badge bg-primary" id="totalUnread">0</span>
+    </div>
+
+    <div class="chats-list" id="chatsList">
+        <!-- Сюда загрузятся чаты -->
+    </div>
+</div>
+
+<script>
+    let allChats = [];
+
+    function loadChats() {
+        fetch('/api/chats')
+            .then(response => response.json())
+            .then(chats => {
+                allChats = chats;
+                displayChats(chats);
+                updateTotalUnread(chats);
+            });
+    }
+
+    function displayChats(chats) {
+        const container = document.getElementById('chatsList');
+
+        if (chats.length === 0) {
+            container.innerHTML = `
+                <div class="empty-chats">
+                    <i class="bi bi-chat-dots"></i>
+                    <h3>Нет диалогов</h3>
+                    <p>Начните общение, отправив заявку на поездку</p>
+                    <a href="/search" class="btn">Найти поездку</a>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+        chats.forEach(chat => {
+            html += `
+                <div class="chat-item" onclick="window.location.href='/chat/${chat.ride_id}'">
+                    <div class="chat-avatar">
+                        ${chat.other_user[0]}
+                        <span class="online-indicator" style="display: ${chat.is_online ? 'block' : 'none'};"></span>
+                    </div>
+                    <div class="chat-info">
+                        <div class="chat-header-info">
+                            <span class="chat-name">${chat.other_user}</span>
+                            <span class="chat-time">${chat.last_time}</span>
+                        </div>
+                        <div class="chat-preview">
+                            <span class="chat-last-message">${chat.last_message || 'Нет сообщений'}</span>
+                            ${chat.unread > 0 ?
+                                `<span class="unread-badge">${chat.unread}</span>` :
+                                ''}
+                        </div>
+                        <div class="chat-ride-info">
+                            <i class="bi bi-geo-alt"></i> ${chat.route}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    function updateTotalUnread(chats) {
+        const total = chats.reduce((sum, chat) => sum + chat.unread, 0);
+        document.getElementById('totalUnread').textContent = total;
+        document.getElementById('totalUnread').style.display = total > 0 ? 'inline-block' : 'none';
+    }
+
+    // Загружаем при открытии
+    loadChats();
+
+    // Обновляем каждые 30 секунд
+    setInterval(loadChats, 30000);
+</script>
+{% endblock %}

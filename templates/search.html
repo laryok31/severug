@@ -1,0 +1,1244 @@
+{% extends "base.html" %}
+
+{% block title %}Поиск попуток | Север-Юг{% endblock %}
+
+{% block extra_css %}
+<script src="https://api-maps.yandex.ru/2.1/?apikey=4932c58f-dc3f-4c34-b0ca-a64c1ef43dca&lang=ru_RU" type="text/javascript"></script>
+<style>
+    /* Современный дизайн */
+    .search-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px 20px;
+        border-radius: 20px;
+        margin-bottom: 30px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .search-card {
+        background: white;
+        border-radius: 25px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .address-group {
+        background: #f8f9fa;
+        border-radius: 20px;
+        padding: 5px;
+        margin-bottom: 20px;
+    }
+
+    .address-item {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        border-radius: 15px;
+        transition: all 0.3s;
+    }
+
+    .address-item:first-child {
+        margin-bottom: 5px;
+    }
+
+    .address-item:hover {
+        background: white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .address-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        font-size: 1.2rem;
+    }
+
+    .from-icon {
+        background: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+    }
+
+    .to-icon {
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+    }
+
+    .address-input {
+        background: transparent;
+        border: 2px solid transparent;
+        border-radius: 12px;
+        padding: 8px 12px;
+        transition: all 0.3s;
+        width: 100%;
+        font-size: 1rem;
+    }
+
+    .address-input:focus {
+        outline: none;
+        border-color: #667eea;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+
+    .address-input::placeholder {
+        color: #adb5bd;
+    }
+
+    .swap-btn {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid #e9ecef;
+        color: #667eea;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        z-index: 10;
+    }
+
+    .swap-btn:hover {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+        transform: translateY(-50%) rotate(180deg);
+    }
+
+    .favorite-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 20px;
+        padding: 20px;
+        margin: 20px 0;
+    }
+
+    .section-title {
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #495057;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .favorite-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 12px;
+    }
+
+    .favorite-card {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 16px;
+        padding: 15px 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-align: center;
+    }
+
+    .favorite-card:hover {
+        border-color: #667eea;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.2);
+    }
+
+    .favorite-emoji {
+        font-size: 2rem;
+        margin-bottom: 8px;
+    }
+
+    .favorite-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 4px;
+        color: #495057;
+    }
+
+    .favorite-address {
+        font-size: 0.7rem;
+        color: #6c757d;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .popular-card {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 16px;
+        padding: 12px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .popular-card:hover {
+        border-color: #ffc107;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(255, 193, 7, 0.2);
+    }
+
+    .popular-route {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-weight: 500;
+        margin-bottom: 5px;
+    }
+
+    .popular-icon {
+        color: #ffc107;
+    }
+
+    .popular-desc {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+
+    .map-container {
+        border-radius: 25px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        margin-bottom: 30px;
+        height: 500px;
+        border: 3px solid white;
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+    }
+
+    .search-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 20px;
+        padding: 18px;
+        color: white;
+        font-weight: 700;
+        font-size: 1.2rem;
+        width: 100%;
+        transition: all 0.3s;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        margin-top: 20px;
+    }
+
+    .search-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .search-btn i {
+        margin-right: 8px;
+    }
+
+    .ride-card {
+        background: white;
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .ride-card:hover {
+        border-color: #667eea;
+        transform: translateX(5px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);
+    }
+
+    .ride-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 4px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .ride-card:hover::before {
+        opacity: 1;
+    }
+
+    .driver-badge {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .driver-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    .price-tag {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 6px 15px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        display: inline-block;
+    }
+
+    .free-tag {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+        color: white;
+        padding: 6px 15px;
+        border-radius: 50px;
+        font-weight: 700;
+    }
+
+    .stats-panel {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 20px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #667eea;
+        line-height: 1.2;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+
+    .tip-box {
+        background: #e3f2fd;
+        border-radius: 16px;
+        padding: 15px;
+        margin: 20px 0;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border-left: 4px solid #2196f3;
+    }
+
+    .tip-icon {
+        width: 40px;
+        height: 40px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #2196f3;
+        font-size: 1.2rem;
+    }
+
+    .tip-text {
+        color: #0d47a1;
+        font-size: 0.95rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+        background: #f8f9fa;
+        border-radius: 20px;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        color: #adb5bd;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Герой секция -->
+<div class="search-hero">
+    <h1 class="display-5 mb-3"><i class="bi bi-search"></i> Поиск попуток</h1>
+    <p class="mb-0">Найдите водителя, который едет по вашему маршруту</p>
+</div>
+<!-- Вкладки поиска -->
+<ul class="nav nav-pills mb-4" id="searchTabs" role="tablist" align="center">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="search-tab" data-bs-toggle="pill" data-bs-target="#search" type="button" role="tab">
+            <i class="bi bi-search"></i> Поиск по маршруту
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="map-tab" data-bs-toggle="pill" data-bs-target="#mapView" type="button" role="tab">
+            <i class="bi bi-map"></i> Все водители на карте
+        </button>
+    </li>
+</ul>
+
+<!-- Содержимое вкладок -->
+<div class="tab-content">
+    <!-- Вкладка поиска по маршруту -->
+    <div class="tab-pane fade show active" id="search" role="tabpanel">
+<div class="row">
+    <div class="col-lg-5">
+        <!-- Карточка поиска -->
+        <div class="search-card">
+            <!-- Поля ввода адресов -->
+            <div class="address-group">
+                <div class="address-item">
+                    <div class="address-icon from-icon">
+                        <i class="bi bi-geo-alt-fill"></i>
+                    </div>
+                    <input type="text" class="address-input" id="fromInput"
+                           placeholder="Откуда? (например, пл. Захарова)" autocomplete="off">
+                </div>
+
+                <div class="address-item">
+                    <div class="address-icon to-icon">
+                        <i class="bi bi-flag-fill"></i>
+                    </div>
+                    <input type="text" class="address-input" id="toInput"
+                           placeholder="Куда? (например, Северная сторона)" autocomplete="off">
+                </div>
+
+                <!-- Кнопка поменять местами -->
+                <div class="swap-btn" onclick="swapAddresses()" title="Поменять местами">
+                    <i class="bi bi-arrow-down-up"></i>
+                </div>
+            </div>
+
+            <input type="hidden" id="from_lat">
+            <input type="hidden" id="from_lng">
+            <input type="hidden" id="to_lat">
+            <input type="hidden" id="to_lng">
+
+            <!-- Подсказка -->
+            <div class="tip-box">
+                <div class="tip-icon">
+                    <i class="bi bi-lightbulb"></i>
+                </div>
+                <div class="tip-text">
+                    <strong>Как пользоваться:</strong> Кликните на карте чтобы выбрать точку, или начните вводить адрес
+                </div>
+            </div>
+
+            <!-- Избранные места (исправленная версия) -->
+            <div class="favorite-section" align="center">
+                <div class="section-title">
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <span>Избранные места</span>
+                </div>
+                <div class="favorite-grid" id="favoritesList">
+                    <div class="text-center py-4" id="favoritesLoading">
+                        <div class="spinner-border text-primary" style="width: 2rem; height: 2rem;"></div>
+                        <p class="mt-2 small">Загрузка...</p>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                function loadFavorites() {
+                    const container = document.getElementById('favoritesList');
+                    const loading = document.getElementById('favoritesLoading');
+
+                    fetch('/api/favorite_routes')
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(routes => {
+                            if (!routes || routes.length === 0) {
+                                container.innerHTML = `
+                                    <div align="center" class="text-center text-muted py-4" style="grid-column: 1/-1;">
+                                        <i class="bi bi-star" style="font-size: 2rem;"></i>
+                                        <p class="mb-0 mt-2">Нет избранных мест</p>
+                                        <small>Добавьте в профиле</small>
+                                    </div>
+                                `;
+                                return;
+                            }
+
+                            let html = '';
+                            routes.forEach(route => {
+                                html += `
+                                    <div class="favorite-card" onclick="useFavorite(${route.id})">
+                                        <div class="favorite-emoji">📍</div>
+                                        <div class="favorite-name">${route.name || 'Маршрут'}</div>
+                                        <div class="favorite-address">${route.from_place.split(',')[0]}</div>
+                                        <div class="favorite-address text-muted mt-1">
+                                            <small>→ ${route.to_place.split(',')[0]}</small>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            container.innerHTML = html;
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            container.innerHTML = `
+                                <div class="text-center text-muted py-4" style="grid-column: 1/-1;">
+                                    <i class="bi bi-exclamation-circle text-danger" style="font-size: 2rem;"></i>
+                                    <p class="mb-0 mt-2">Ошибка загрузки</p>
+                                    <small class="text-muted">Попробуйте позже</small>
+                                </div>
+                            `;
+                        });
+                }
+
+                // Вызываем функцию загрузки
+                document.addEventListener('DOMContentLoaded', loadFavorites);
+            </script>
+
+            <!-- Популярные маршруты (исправлено) -->
+            <div class="favorite-section">
+                <div class="section-title">
+                    <i class="bi bi-fire text-danger"></i>
+                    <span>Популярные маршруты</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div class="popular-card" onclick="setRoute('пл. Захарова', 'пл. Нахимова')" style="width: 100%;">
+                        <div class="popular-route">
+                            <span>пл. Захарова</span>
+                            <i class="bi bi-arrow-right popular-icon"></i>
+                            <span>пл. Нахимова</span>
+                        </div>
+                        <div align="center" " class="popular-desc">🏛️ Центр города</div>
+                    </div>
+
+                    <div class="popular-card" onclick="setRoute('пл. Нахимова', 'пл. Захарова')" style="width: 100%;">
+                        <div class="popular-route">
+                            <span>пл. Нахимова</span>
+                            <i class="bi bi-arrow-right popular-icon"></i>
+                            <span>пл. Захарова</span>
+                        </div>
+                        <div align="center" class="popular-desc">🏛️ Северная сторона</div>
+                    </div>
+
+                    <div class="popular-card" onclick="setRoute('пл. Ушакова', 'пл. Захарова')" style="width: 100%;">
+                        <div class="popular-route">
+                            <span>пл. Ушакова</span>
+                            <i class="bi bi-arrow-right popular-icon"></i>
+                            <span>пл. Захарова</span>
+                        </div>
+                        <div align="center" class="popular-desc">🏛️ Северная сторона</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Кнопка поиска -->
+            <button class="search-btn" onclick="searchRides()">
+                <i class="bi bi-search"></i> Найти попутки
+            </button>
+        </div>
+
+        <!-- Статистика -->
+        <div class="stats-panel" id="statsPanel" style="display: none;">
+            <div class="row">
+                <div class="col-4 stat-item">
+                    <div class="stat-value" id="statsCount">0</div>
+                    <div class="stat-label">поездок</div>
+                </div>
+                <div class="col-4 stat-item">
+                    <div class="stat-value" id="statsAvgPrice">0</div>
+                    <div class="stat-label">средняя</div>
+                </div>
+                <div class="col-4 stat-item">
+                    <div class="stat-value" id="statsFree">0</div>
+                    <div class="stat-label">бесплатно</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <!-- Карта -->
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Результаты поиска -->
+<div id="results" style="display: none;">
+    <h3 class="mb-4">
+        <i class="bi bi-list-check"></i>
+        Найденные поездки <span id="resultsCount" class="badge bg-primary">0</span>
+    </h3>
+    <div id="ridesList" class="row"></div>
+</div>
+
+<!-- Модальное окно бронирования -->
+<div class="modal fade" id="bookModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-check-circle text-success"></i>
+                    Бронирование
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="bookModalBody"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x"></i> Закрыть
+                </button>
+                <button type="button" class="btn btn-success" onclick="bookRide()" id="bookBtn">
+                    <i class="bi bi-check"></i> Забронировать
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+    </div>
+
+    <!-- Вкладка карты со всеми водителями -->
+    <div class="tab-pane fade" id="mapView" role="tabpanel">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-geo-alt-fill text-primary"></i>
+                    Все активные водители
+                </h5>
+                <p class="text-muted small">На карте отмечены водители, которые едут прямо сейчас</p>
+
+                <!-- Карта для всех водителей -->
+                <div id="globalMap" style="width: 100%; height: 400px; border-radius: 15px;"></div>
+
+                <!-- Список водителей -->
+                <div id="globalDriversList" class="mt-4"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    let globalMap;
+    let globalMarkers = [];
+
+    // Инициализация глобальной карты
+    function initGlobalMap() {
+        if (!ymaps) return;
+
+        globalMap = new ymaps.Map("globalMap", {
+            center: [44.6165, 33.5256],
+            zoom: 12,
+            controls: ['zoomControl', 'fullscreenControl', 'geolocationControl']
+        });
+
+        loadAllDrivers();
+    }
+
+    // Загрузка всех активных водителей
+    function loadAllDrivers() {
+        fetch('/api/active_drivers')
+            .then(response => response.json())
+            .then(drivers => {
+                // Очищаем старые маркеры
+                if (globalMarkers.length > 0) {
+                    globalMarkers.forEach(marker => globalMap.geoObjects.remove(marker));
+                    globalMarkers = [];
+                }
+
+                if (drivers.length === 0) {
+                    document.getElementById('globalDriversList').innerHTML = `
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Сейчас нет активных водителей
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Добавляем маркеры на карту
+                drivers.forEach(driver => {
+                    const marker = new ymaps.Placemark(
+                        [driver.from_lat, driver.from_lng],
+                        {
+                            balloonContent: `
+                                <div style="min-width: 200px;">
+                                    <strong>${driver.driver_name}</strong><br>
+                                    <span class="small">${driver.from_place} → ${driver.to_place}</span><br>
+                                    <span class="small">🕐 ${driver.time}</span><br>
+                                    <span class="small">👥 ${driver.seats} мест</span><br>
+                                    ${driver.price === 0 ?
+                                        '<span class="badge bg-success mt-2">Бесплатно</span>' :
+                                        `<span class="badge bg-warning mt-2">${driver.price} ₽</span>`}
+                                    <br>
+                                    <a href="/ride/${driver.id}" class="btn btn-primary btn-sm mt-2 w-100">
+                                        Подробнее
+                                    </a>
+                                </div>
+                            `,
+                            iconContent: '🚗'
+                        },
+                        {
+                            preset: 'islands#blueStretchyIcon',
+                            draggable: false
+                        }
+                    );
+
+                    globalMap.geoObjects.add(marker);
+                    globalMarkers.push(marker);
+                });
+
+                // Отображаем список водителей
+                displayDriversList(drivers);
+            });
+    }
+
+    function displayDriversList(drivers) {
+        const container = document.getElementById('globalDriversList');
+
+        let html = '<div class="row g-3">';
+        drivers.forEach(driver => {
+            html += `
+                <div class="col-md-6">
+                    <div class="card driver-card" onclick="window.location.href='/ride/${driver.id}'" style="cursor: pointer;">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="mb-1">${driver.driver_name}</h6>
+                                    <p class="mb-1 small text-muted">
+                                        <i class="bi bi-geo-alt"></i> ${driver.from_place}
+                                    </p>
+                                    <p class="mb-1 small text-muted">
+                                        <i class="bi bi-flag"></i> ${driver.to_place}
+                                    </p>
+                                    <p class="mb-1 small">
+                                        <i class="bi bi-clock"></i> ${driver.time}
+                                    </p>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-info mb-2">${driver.seats} мест</span>
+                                    ${driver.price === 0 ?
+                                        '<span class="badge bg-success d-block">Бесплатно</span>' :
+                                        `<span class="badge bg-warning d-block">${driver.price} ₽</span>`}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+
+        container.innerHTML = html;
+    }
+
+    // Добавляем стили для карточек
+    const style = document.createElement('style');
+    style.textContent = `
+        .driver-card {
+            transition: all 0.3s;
+            border: 1px solid #e9ecef;
+            border-radius: 15px;
+        }
+        .driver-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+        .nav-pills .nav-link {
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-weight: 600;
+        }
+        .nav-pills .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Обновляем глобальную карту каждые 30 секунд
+    setInterval(() => {
+        if (document.getElementById('mapView').classList.contains('show')) {
+            loadAllDrivers();
+        }
+    }, 30000);
+
+    // Инициализация при загрузке
+    ymaps.ready(() => {
+        if (document.getElementById('globalMap')) {
+            initGlobalMap();
+        }
+    });
+</script>
+<script>
+    let map;
+    let fromPlacemark = null;
+    let toPlacemark = null;
+    let route = null;
+    let currentRideId = null;
+    let currentRide = null;
+    let allRides = [];
+    let searchControl = null;
+
+    ymaps.ready(init);
+
+    function init() {
+        map = new ymaps.Map("map", {
+            center: [44.6165, 33.5256],
+            zoom: 13,
+            controls: ['zoomControl', 'fullscreenControl', 'geolocationControl', 'typeSelector']
+        });
+
+        // Поиск на карте
+        searchControl = new ymaps.control.SearchControl({
+            options: {
+                float: 'right',
+                noPlacemark: true,
+                provider: 'yandex#search'
+            }
+        });
+        map.controls.add(searchControl);
+
+        searchControl.events.add('resultselect', function(e) {
+            const index = e.get('index');
+            searchControl.getResult(index).then(function(res) {
+                const coords = res.geometry.getCoordinates();
+                const address = res.properties.get('name');
+
+                // Определяем какое поле сейчас активно (по последнему клику)
+                if (!document.getElementById('from_lat').value) {
+                    setFromPoint(coords, address);
+                } else if (!document.getElementById('to_lat').value) {
+                    setToPoint(coords, address);
+                } else {
+                    // Если обе точки есть, спрашиваем
+                    if (confirm('Изменить точку отправления?')) {
+                        setFromPoint(coords, address);
+                    } else {
+                        setToPoint(coords, address);
+                    }
+                }
+            });
+        });
+
+        // Клик по карте
+        map.events.add('click', function(e) {
+            const coords = e.get('coords');
+            ymaps.geocode(coords).then(function(res) {
+                const address = res.geoObjects.get(0).getAddressLine();
+
+                if (!document.getElementById('from_lat').value) {
+                    setFromPoint(coords, address);
+                } else if (!document.getElementById('to_lat').value) {
+                    setToPoint(coords, address);
+                } else {
+                    if (confirm('Изменить точку отправления?')) {
+                        setFromPoint(coords, address);
+                    } else {
+                        setToPoint(coords, address);
+                    }
+                }
+            });
+        });
+
+        // Геолокация
+        map.controls.get('geolocationControl').events.add('locationchange', function(e) {
+            const position = e.get('position');
+            const coords = [position.latitude, position.longitude];
+
+            ymaps.geocode(coords).then(function(res) {
+                const address = res.geoObjects.get(0).getAddressLine();
+
+                if (!document.getElementById('from_lat').value) {
+                    setFromPoint(coords, address);
+                } else {
+                    setFromPoint(coords, address);
+                }
+            });
+        });
+
+        // Загружаем избранные места
+        loadFavorites();
+    }
+
+    function swapAddresses() {
+        const fromLat = document.getElementById('from_lat').value;
+        const fromLng = document.getElementById('from_lng').value;
+        const toLat = document.getElementById('to_lat').value;
+        const toLng = document.getElementById('to_lng').value;
+        const fromAddr = document.getElementById('fromInput').value;
+        const toAddr = document.getElementById('toInput').value;
+
+        if (fromAddr && toAddr) {
+            setFromPoint([toLat, toLng], toAddr);
+            setToPoint([fromLat, fromLng], fromAddr);
+        }
+    }
+
+    function loadFavorites() {
+        fetch('/api/favorite_routes')
+            .then(response => response.json())
+            .then(routes => {
+                const container = document.getElementById('favoritesList');
+
+                if (!routes || routes.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center text-muted py-4">
+                            <i class="bi bi-star" style="font-size: 2rem;"></i>
+                            <p class="mb-0 mt-2">Нет избранных мест</p>
+                            <small>Добавьте в профиле</small>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                routes.forEach(route => {
+                    html += `
+                        <div class="favorite-card" onclick="useFavorite(${route.id})">
+                            <div class="favorite-emoji">📍</div>
+                            <div class="favorite-name">${route.name || 'Маршрут'}</div>
+                            <div class="favorite-address">${route.from_place}</div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            })
+            .catch(() => {
+                document.getElementById('favoritesList').innerHTML = `
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-exclamation-circle"></i>
+                        <p class="mb-0 mt-2">Ошибка загрузки</p>
+                    </div>
+                `;
+            });
+    }
+
+    function useFavorite(favId) {
+        window.location.href = `/api/search_favorite/${favId}`;
+    }
+
+    function setFromPoint(coords, address) {
+        document.getElementById('fromInput').value = address;
+        document.getElementById('from_lat').value = coords[0];
+        document.getElementById('from_lng').value = coords[1];
+
+        if (fromPlacemark) map.geoObjects.remove(fromPlacemark);
+
+        fromPlacemark = new ymaps.Placemark(coords, {
+            balloonContent: 'Отправление: ' + address,
+            iconContent: 'А'
+        }, {
+            preset: 'islands#greenStretchyIcon',
+            draggable: true
+        });
+
+        fromPlacemark.events.add('dragend', function(e) {
+            const newCoords = e.get('target').geometry.getCoordinates();
+            ymaps.geocode(newCoords).then(res => {
+                setFromPoint(newCoords, res.geoObjects.get(0).getAddressLine());
+            });
+        });
+
+        map.geoObjects.add(fromPlacemark);
+        map.setCenter(coords, 15);
+        buildRoute();
+    }
+
+    function setToPoint(coords, address) {
+        document.getElementById('toInput').value = address;
+        document.getElementById('to_lat').value = coords[0];
+        document.getElementById('to_lng').value = coords[1];
+
+        if (toPlacemark) map.geoObjects.remove(toPlacemark);
+
+        toPlacemark = new ymaps.Placemark(coords, {
+            balloonContent: 'Прибытие: ' + address,
+            iconContent: 'Б'
+        }, {
+            preset: 'islands#redStretchyIcon',
+            draggable: true
+        });
+
+        toPlacemark.events.add('dragend', function(e) {
+            const newCoords = e.get('target').geometry.getCoordinates();
+            ymaps.geocode(newCoords).then(res => {
+                setToPoint(newCoords, res.geoObjects.get(0).getAddressLine());
+            });
+        });
+
+        map.geoObjects.add(toPlacemark);
+        map.setCenter(coords, 15);
+        buildRoute();
+    }
+
+    function buildRoute() {
+        if (route) map.geoObjects.remove(route);
+
+        const fromLat = document.getElementById('from_lat').value;
+        const fromLng = document.getElementById('from_lng').value;
+        const toLat = document.getElementById('to_lat').value;
+        const toLng = document.getElementById('to_lng').value;
+
+        if (fromLat && toLat) {
+            ymaps.route([[fromLat, fromLng], [toLat, toLng]], {
+                avoidTrafficJams: true,
+                routingMode: 'auto'
+            }).then(function(routeRes) {
+                route = routeRes;
+                map.geoObjects.add(route);
+            });
+        }
+    }
+
+    function setRoute(from, to) {
+        const routes = {
+            'пл. Захарова': ['пл. Захарова', 44.62588, 33.53742],
+            'пл. Нахимова': ['пл. Нахимова', 44.615806, 33.525365],
+            'пл. Ушакова': ['пл. Ушакова', 44.600544, 33.524351]
+        };
+
+        if (from in routes && to in routes) {
+            setFromPoint([routes[from][1], routes[from][2]], routes[from][0]);
+            setTimeout(() => {
+                setToPoint([routes[to][1], routes[to][2]], routes[to][0]);
+            }, 500);
+        }
+    }
+
+    function searchRides() {
+        const fromLat = document.getElementById('from_lat').value;
+        const fromLng = document.getElementById('from_lng').value;
+        const toLat = document.getElementById('to_lat').value;
+        const toLng = document.getElementById('to_lng').value;
+
+        if (!fromLat || !toLat) {
+            alert('Пожалуйста, выберите точки отправления и прибытия');
+            return;
+        }
+
+        document.getElementById('ridesList').innerHTML = `
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                    <p class="mt-3">Поиск поездок...</p>
+                </div>
+            </div>
+        `;
+        document.getElementById('results').style.display = 'block';
+
+        fetch(`/api/search_rides?from_lat=${fromLat}&from_lng=${fromLng}&to_lat=${toLat}&to_lng=${toLng}`)
+            .then(response => response.json())
+            .then(rides => {
+                allRides = rides;
+                displayRides(rides);
+            })
+            .catch(() => {
+                document.getElementById('ridesList').innerHTML = `
+                    <div class="col-12">
+                        <div class="empty-state">
+                            <div class="empty-icon">❌</div>
+                            <h5>Ошибка поиска</h5>
+                            <p class="text-muted">Попробуйте еще раз</p>
+                        </div>
+                    </div>
+                `;
+            });
+    }
+
+    function displayRides(rides) {
+        const container = document.getElementById('ridesList');
+        const count = document.getElementById('resultsCount');
+        const statsPanel = document.getElementById('statsPanel');
+
+        count.textContent = rides.length;
+
+        if (rides.length === 0) {
+            container.innerHTML = `
+                <div class="col-12">
+                    <div class="empty-state">
+                        <div class="empty-icon">🔍</div>
+                        <h5>Поездок не найдено</h5>
+                        <p class="text-muted mb-4">Попробуйте изменить маршрут или время</p>
+                        <a href="/create_ride" class="btn btn-primary btn-lg">
+                            <i class="bi bi-plus-circle"></i> Создать поездку
+                        </a>
+                    </div>
+                </div>
+            `;
+            statsPanel.style.display = 'none';
+            return;
+        }
+
+        // Статистика
+        const avgPrice = Math.round(rides.reduce((sum, r) => sum + r.price, 0) / rides.length);
+        const freeCount = rides.filter(r => r.price === 0).length;
+
+        document.getElementById('statsCount').textContent = rides.length;
+        document.getElementById('statsAvgPrice').textContent = avgPrice + '₽';
+        document.getElementById('statsFree').textContent = freeCount;
+        statsPanel.style.display = 'block';
+
+        let html = '';
+        rides.forEach(ride => {
+            const priceTag = ride.price === 0
+                ? '<span class="free-tag"><i class="bi bi-gift"></i> Бесплатно</span>'
+                : `<span class="price-tag">${ride.price} ₽</span>`;
+
+            const firstLetter = ride.driver_name ? ride.driver_name[0] : '?';
+
+            html += `
+                <div class="col-md-6">
+                    <div class="ride-card" onclick="showRideDetails(${JSON.stringify(ride).replace(/"/g, '&quot;')})">
+                        <div class="driver-badge">
+                            <div class="driver-avatar">
+                                ${firstLetter}
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">${ride.driver_name}</h6>
+                                        <p class="mb-2 small text-muted">
+                                            <i class="bi bi-car-front"></i> ${ride.car_color || ''} ${ride.car_model || ''}
+                                        </p>
+                                    </div>
+                                    ${priceTag}
+                                </div>
+
+                                <div class="mb-2">
+                                    <div class="small">
+                                        <i class="bi bi-geo-alt text-success"></i> ${ride.from}
+                                    </div>
+                                    <div class="small">
+                                        <i class="bi bi-flag text-danger"></i> ${ride.to}
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="small text-muted">
+                                        <i class="bi bi-clock"></i> ${ride.time}
+                                    </div>
+                                    <span class="badge bg-info">
+                                        <i class="bi bi-people"></i> ${ride.seats} мест
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    function showRideDetails(ride) {
+        currentRide = ride;
+        currentRideId = ride.id;
+
+        const priceText = ride.price === 0 ? 'Бесплатно' : ride.price + ' ₽';
+
+        document.getElementById('bookModalBody').innerHTML = `
+            <div class="text-center mb-4">
+                <div class="driver-avatar mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                    ${ride.driver_name ? ride.driver_name[0] : '?'}
+                </div>
+                <h5>${ride.driver_name}</h5>
+                <p class="text-muted small">
+                    <i class="bi bi-star-fill text-warning"></i> ${ride.driver_rating || '5.0'}
+                    <br><i class="bi bi-car-front"></i> ${ride.car_color || ''} ${ride.car_model || ''}
+                    ${ride.car_number ? '<br>' + ride.car_number : ''}
+                </p>
+            </div>
+
+            <div class="alert alert-info">
+                <div class="d-flex mb-2">
+                    <i class="bi bi-geo-alt text-success me-2"></i>
+                    <span class="small">${ride.from}</span>
+                </div>
+                <div class="d-flex mb-2">
+                    <i class="bi bi-flag text-danger me-2"></i>
+                    <span class="small">${ride.to}</span>
+                </div>
+                <div class="d-flex mb-2">
+                    <i class="bi bi-clock me-2"></i>
+                    <span class="small">${ride.time}</span>
+                </div>
+                <div class="d-flex">
+                    <i class="bi bi-people me-2"></i>
+                    <span class="small">Свободно: ${ride.seats} мест</span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Сколько мест нужно?</label>
+                <input type="number" id="seatsInput" class="form-control" value="1" min="1" max="${ride.seats}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">📍 Где вас забрать?</label>
+                <input type="text" id="pickupPoint" class="form-control"
+                       placeholder="Например: остановка, подъезд 3"
+                       value="${ride.from}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">🏁 Где высадить?</label>
+                <input type="text" id="dropoffPoint" class="form-control"
+                       placeholder="Например: у магазина, 5 подъезд"
+                       value="${ride.to}">
+            </div>
+        `;
+
+        const modal = new bootstrap.Modal(document.getElementById('bookModal'));
+        modal.show();
+    }
+
+    function bookRide() {
+        const seats = document.getElementById('seatsInput').value;
+        const pickup = document.getElementById('pickupPoint').value;
+        const dropoff = document.getElementById('dropoffPoint').value;
+
+        fetch('/api/book_ride', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                ride_id: currentRideId,
+                seats: parseInt(seats),
+                pickup_point: pickup,
+                dropoff_point: dropoff
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ Заявка отправлена! Ожидайте подтверждения водителя.');
+                location.reload();
+            } else {
+                alert('❌ Ошибка: ' + data.error);
+            }
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,310 @@
+{% extends "base.html" %}
+
+{% block title %}Как это работает | Север-Юг{% endblock %}
+
+{% block extra_css %}
+<style>
+    .story-hero {
+        background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%);
+        border-radius: 40px;
+        padding: 80px 40px;
+        color: white;
+        margin-bottom: 60px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .story-hero::before {
+        content: '🚗';
+        position: absolute;
+        right: 20px;
+        bottom: 20px;
+        font-size: 12rem;
+        opacity: 0.1;
+        animation: float 8s ease-in-out infinite;
+    }
+
+    .story-hero h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 20px;
+    }
+
+    .story-hero p {
+        font-size: 1.3rem;
+        opacity: 0.9;
+        max-width: 600px;
+    }
+
+    .timeline {
+        position: relative;
+        max-width: 800px;
+        margin: 60px auto;
+        padding: 20px 0;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(to bottom, #4f46e5, #818cf8);
+        transform: translateX(-50%);
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 60px;
+        width: 50%;
+        padding: 0 40px;
+        animation: slideIn 0.5s ease;
+        animation-fill-mode: both;
+    }
+
+    .timeline-item:nth-child(odd) {
+        left: 0;
+    }
+
+    .timeline-item:nth-child(even) {
+        left: 50%;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        width: 20px;
+        height: 20px;
+        background: white;
+        border: 4px solid #4f46e5;
+        border-radius: 50%;
+        z-index: 2;
+    }
+
+    .timeline-item:nth-child(odd)::before {
+        right: -10px;
+    }
+
+    .timeline-item:nth-child(even)::before {
+        left: -10px;
+    }
+
+    .timeline-content {
+        background: white;
+        border-radius: 30px;
+        padding: 30px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        border: 1px solid #f1f5f9;
+    }
+
+    .timeline-year {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #4f46e5;
+        margin-bottom: 10px;
+    }
+
+    .timeline-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #1e293b;
+    }
+
+    .timeline-text {
+        color: #6c757d;
+        line-height: 1.7;
+    }
+
+    .tech-stack {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 25px;
+        margin: 60px 0;
+    }
+
+    .tech-card {
+        background: white;
+        border-radius: 30px;
+        padding: 30px;
+        text-align: center;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.03);
+        border: 1px solid #f1f5f9;
+        transition: all 0.3s;
+    }
+
+    .tech-card:hover {
+        transform: translateY(-10px);
+        border-color: #4f46e5;
+    }
+
+    .tech-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%);
+        border-radius: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 2.5rem;
+        color: white;
+    }
+
+    .tech-name {
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: #1e293b;
+        margin-bottom: 10px;
+    }
+
+    .tech-desc {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+        .timeline::before {
+            left: 30px;
+        }
+
+        .timeline-item {
+            width: 100%;
+            left: 0 !important;
+            padding-left: 70px;
+            padding-right: 20px;
+        }
+
+        .timeline-item::before {
+            left: 20px !important;
+            right: auto !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Герой секция -->
+<div class="story-hero">
+    <h1>Как появился Север-Юг</h1>
+    <p>История создания сервиса, который помогает тысячам людей</p>
+</div>
+<!-- Кто я -->
+<div style="background: white; border-radius: 40px; padding: 60px; margin: 60px 0;">
+    <div style="display: flex; align-items: center; gap: 50px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 300px;">
+            <h2 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 20px;">
+                Привет, я <span style="color: #4f46e5;">Илларион</span> 👋
+            </h2>
+            <p style="font-size: 1.1rem; color: #6c757d; line-height: 1.8; margin-bottom: 20px;">
+                Я разработчик и житель Севастополя. Создал этот сервис, потому что сам
+                столкнулся с проблемой переправы через бухту. Хотел сделать что-то полезное
+                для родного города.
+            </p>
+            <p style="font-size: 1.1rem; color: #6c757d; line-height: 1.8;">
+                Проект полностью бесплатный и открытый. Если у вас есть идеи или предложения,
+                пишите в Telegram. Вместе мы сделаем Севастополь лучше!
+            </p>
+        </div>
+        <div style="flex: 1; text-align: center;">
+            <div style="width: 300px; height: 300px; background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 8rem; color: white;">
+                🚗
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Таймлайн истории -->
+<div class="timeline">
+    <div class="timeline-item" style="animation-delay: 0.1s">
+        <div class="timeline-content">
+            <div class="timeline-year">2025</div>
+            <div class="timeline-title">🤔 Идея</div>
+            <div class="timeline-text">
+                Всё началось с обычной проблемы: я живу в Севастополе и часто сталкиваюсь с тем,
+                что паром через бухту не ходит из-за погоды. Приходилось искать попутки в
+                телеграм-чатах, но это было неудобно - информация терялась, не было системы.
+            </div>
+        </div>
+    </div>
+
+    <div class="timeline-item" style="animation-delay: 0.2s">
+        <div class="timeline-content">
+            <div class="timeline-year">Начало 2025</div>
+            <div class="timeline-title">💻 Первые строки кода</div>
+            <div class="timeline-text">
+                Решил создать простой сайт, где водители и пассажиры могли бы находить друг друга.
+                Начал изучать Python и Flask. Первая версия была очень простой - просто доска объявлений.
+            </div>
+        </div>
+    </div>
+
+    <div class="timeline-item" style="animation-delay: 0.3s">
+        <div class="timeline-content">
+            <div class="timeline-year">Зима 2026</div>
+            <div class="timeline-title">🚀 Запуск</div>
+            <div class="timeline-text">
+                Запустил первую версию для друзей и знакомых. Получил много отзывов и понял,
+                что людям действительно нужен такой сервис. Начал добавлять новые функции: карты,
+                чаты, регулярные поездки.
+            </div>
+        </div>
+    </div>
+
+    <div class="timeline-item" style="animation-delay: 0.4s">
+        <div class="timeline-content">
+            <div class="timeline-year">2026</div>
+            <div class="timeline-title">📈 Рост</div>
+            <div class="timeline-text">
+                Надежда что сервис выростет и станет популярным до 1000+ пользователей. Добавил систему рейтингов, избранное,
+                и многое другое. Сайт стал полноценной платформой для поиска попутчиков.
+            </div>
+        </div>
+    </div>
+
+    <div class="timeline-item" style="animation-delay: 0.5s">
+        <div class="timeline-content">
+            <div class="timeline-year">Сегодня</div>
+            <div class="timeline-title">💙 Север-Юг сейчас</div>
+            <div class="timeline-text">
+                Сейчас сервисом пользуются тысячи людей. Каждый день мы помогаем
+                севастопольцам добираться через бухту. Проект развивается с любовью к городу
+                и его жителям. И это только начало!
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Технологии -->
+<h2 style="text-align: center; font-size: 2.5rem; font-weight: 700; margin: 80px 0 40px;">
+    На чём построен <span style="color: #4f46e5;">проект</span>
+</h2>
+
+<div class="tech-stack">
+    <div class="tech-card">
+        <div class="tech-icon">🐍</div>
+        <h3 class="tech-name">Python/Flask</h3>
+        <p class="tech-desc">Основной язык и фреймворк</p>
+    </div>
+
+    <div class="tech-card">
+        <div class="tech-icon">🗄️</div>
+        <h3 class="tech-name">SQLite</h3>
+        <p class="tech-desc">Легкая и быстрая база данных</p>
+    </div>
+
+    <div class="tech-card">
+        <div class="tech-icon">🗺️</div>
+        <h3 class="tech-name">Яндекс.Карты</h3>
+        <p class="tech-desc">Для построения маршрутов</p>
+    </div>
+
+    <div class="tech-card">
+        <div class="tech-icon">📱</div>
+        <h3 class="tech-name">Bootstrap 5</h3>
+        <p class="tech-desc">Адаптивный дизайн</p>
+    </div>
+</div>
+
+{% endblock %}

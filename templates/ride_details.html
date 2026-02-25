@@ -1,0 +1,952 @@
+{% extends "base.html" %}
+
+{% block title %}Детали поездки | Север-Юг{% endblock %}
+
+{% block extra_css %}
+<script src="https://api-maps.yandex.ru/2.1/?apikey=4932c58f-dc3f-4c34-b0ca-a64c1ef43dca&lang=ru_RU" type="text/javascript"></script>
+<style>
+    /* Современный дизайн */
+    :root {
+        --primary: #667eea;
+        --secondary: #764ba2;
+        --success: #28a745;
+        --warning: #ffc107;
+        --danger: #dc3545;
+        --dark: #343a40;
+        --light: #f8f9fa;
+    }
+
+    .ride-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        border-radius: 30px;
+        padding: 30px;
+        color: white;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .ride-header::before {
+        content: '🚗';
+        position: absolute;
+        right: 20px;
+        bottom: 20px;
+        font-size: 8rem;
+        opacity: 0.1;
+        transform: rotate(15deg);
+    }
+
+    .route-tag {
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 50px;
+        padding: 8px 20px;
+        display: inline-block;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+    }
+
+    .main-route {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        line-height: 1.2;
+    }
+
+    .ride-meta {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .meta-item {
+        background: rgba(255,255,255,0.15);
+        border-radius: 15px;
+        padding: 10px 15px;
+        font-size: 0.95rem;
+    }
+
+    .content-grid {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 25px;
+    }
+
+    @media (max-width: 992px) {
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .info-card {
+        background: white;
+        border-radius: 25px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        border: 1px solid #e9ecef;
+        transition: all 0.3s;
+    }
+
+    .info-card:hover {
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.1);
+    }
+
+    .card-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--dark);
+    }
+
+    .card-title i {
+        color: var(--primary);
+    }
+
+    .driver-profile {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .driver-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: bold;
+        flex-shrink: 0;
+    }
+
+    .driver-info {
+        flex-grow: 1;
+    }
+
+    .driver-name {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .driver-stats {
+        display: flex;
+        gap: 15px;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .car-details {
+        background: var(--light);
+        border-radius: 15px;
+        padding: 15px;
+        margin: 20px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .car-model {
+        font-weight: 600;
+    }
+
+    .car-number {
+        background: var(--dark);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 10px;
+        font-family: monospace;
+        letter-spacing: 2px;
+    }
+
+    .contact-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .contact-btn {
+        flex: 1;
+        padding: 12px;
+        border-radius: 15px;
+        border: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.3s;
+    }
+
+    .contact-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .btn-call {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+    }
+
+    .btn-telegram {
+        background: linear-gradient(135deg, #0088cc 0%, #006699 100%);
+        color: white;
+    }
+
+    .btn-whatsapp {
+        background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+        color: white;
+    }
+
+    .booking-card {
+        background: white;
+        border-radius: 25px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        border: 2px solid #e9ecef;
+        position: sticky;
+        top: 90px;
+    }
+
+    .price-badge {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 20px;
+    }
+
+    .seats-selector {
+        margin-bottom: 20px;
+    }
+
+    .seats-selector label {
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .seats-selector select {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        font-size: 1rem;
+    }
+
+    .location-input {
+        margin-bottom: 15px;
+    }
+
+    .location-input label {
+        font-weight: 600;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+    }
+
+    .location-input input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        font-size: 0.95rem;
+    }
+
+    .location-input input:focus {
+        border-color: var(--primary);
+        outline: none;
+    }
+
+    .btn-book {
+        width: 100%;
+        padding: 15px;
+        border-radius: 15px;
+        border: none;
+        font-weight: 700;
+        font-size: 1.1rem;
+        transition: all 0.3s;
+        margin-top: 20px;
+    }
+
+    .btn-book-primary {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        color: white;
+    }
+
+    .btn-book-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+    }
+
+    .btn-book-warning {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+        color: white;
+    }
+
+    .btn-book-danger {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+    }
+
+    .btn-book:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .status-alert {
+        padding: 15px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+        border-left: 4px solid #ffc107;
+    }
+
+    .status-approved {
+        background: #d4edda;
+        color: #155724;
+        border-left: 4px solid #28a745;
+    }
+
+    .status-rejected {
+        background: #f8d7da;
+        color: #721c24;
+        border-left: 4px solid #dc3545;
+    }
+
+    .booking-item {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 15px;
+        padding: 15px;
+        margin-bottom: 10px;
+        transition: all 0.3s;
+    }
+
+    .booking-item:hover {
+        border-color: var(--primary);
+        transform: translateX(5px);
+    }
+
+    .booking-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .passenger-name {
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .passenger-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        font-weight: bold;
+    }
+
+    .booking-status {
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .booking-actions {
+        display: flex;
+        gap: 5px;
+        margin-top: 10px;
+    }
+
+    .btn-sm {
+        padding: 8px 15px;
+        border-radius: 10px;
+        border: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s;
+    }
+
+    .passenger-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    .passenger-avatar.small {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+
+    .driver-avatar-large {
+        width: 60px;
+        height: 60px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.5rem;
+    }
+
+    .car-info {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 15px;
+        border-left: 4px solid #4f46e5;
+    }
+
+    .btn-sm:hover {
+        transform: translateY(-2px);
+    }
+
+    .map-container {
+        border-radius: 20px;
+        overflow: hidden;
+        height: 300px;
+        margin: 20px 0;
+        border: 3px solid white;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+    }
+
+    .favorite-btn {
+        background: transparent;
+        border: 2px solid #e9ecef;
+        border-radius: 50px;
+        padding: 8px 15px;
+        color: #6c757d;
+        transition: all 0.3s;
+        margin-top: 15px;
+    }
+
+    .favorite-btn:hover {
+        border-color: #ffc107;
+        color: #ffc107;
+    }
+
+    .favorite-btn.active {
+        background: #ffc107;
+        color: white;
+        border-color: #ffc107;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Шапка с маршрутом -->
+<div class="ride-header">
+    <div class="route-tag">
+        <i class="bi bi-geo-alt"></i> Маршрут поездки
+    </div>
+    <div class="main-route">
+        {{ ride.from_place }} <i class="bi bi-arrow-right"></i> {{ ride.to_place }}
+    </div>
+    <div class="ride-meta">
+        <div class="meta-item">
+            <i class="bi bi-calendar"></i> {{ ride.departure_time.strftime('%d.%m.%Y') }}
+        </div>
+        <div class="meta-item">
+            <i class="bi bi-clock"></i> {{ ride.departure_time.strftime('%H:%M') }}
+        </div>
+        <div class="meta-item">
+            <i class="bi bi-people"></i> {{ ride.seats }} мест
+        </div>
+        <div class="meta-item">
+            {% if ride.price == 0 %}
+            <i class="bi bi-gift"></i> Бесплатно
+            {% else %}
+            <i class="bi bi-cash"></i> {{ ride.price }} ₽
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="content-grid">
+    <!-- Левая колонка - основная информация -->
+    <div>
+        <!-- Карта -->
+        <div class="info-card">
+            <div class="card-title">
+                <i class="bi bi-map"></i> Карта маршрута
+            </div>
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+        </div>
+
+        {% if user and user.id != ride.driver_id %}
+        <div class="info-card">
+            <div class="card-title">
+                <i class="bi bi-person-badge"></i> О водителе
+            </div>
+
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="driver-avatar-large">{{ driver.name[0] }}</div>
+                <div>
+                    <div class="fw-bold fs-5">{{ driver.name }}</div>
+                    <div class="small text-muted">
+                        <i class="bi bi-star-fill text-warning"></i> {{ driver.driver_rating|default('5.0') }}
+                    </div>
+                </div>
+            </div>
+
+            {% if driver.car_model %}
+            <div class="car-info mt-3">
+                <div><i class="bi bi-car-front"></i> {{ driver.car_color }} {{ driver.car_model }}</div>
+                <div class="small text-muted">{{ driver.car_number }}</div>
+            </div>
+            {% endif %}
+
+            <div class="contact-buttons mt-3">
+                <a href="tel:{{ driver.contact_phone or driver.phone }}" class="btn btn-success">
+                    <i class="bi bi-telephone"></i>
+                </a>
+                <a href="/chat/{{ ride.id }}" class="btn btn-primary">
+                    <i class="bi bi-chat"></i> Чат
+                </a>
+            </div>
+        </div>
+
+        <!-- Другие пассажиры (если есть) -->
+        {% set other_passengers = bookings|selectattr('passenger_id', '!=', user.id)|list %}
+        {% if other_passengers %}
+        <div class="info-card">
+            <div class="card-title">
+                <i class="bi bi-people"></i> Попутчики
+            </div>
+
+            {% for booking in other_passengers %}
+            <div class="passenger-item mb-2">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="passenger-avatar small">{{ booking.passenger.name[0] }}</div>
+                    <div>
+                        <div class="fw-bold">{{ booking.passenger.name }}</div>
+                        <div class="small text-muted">{{ booking.seats }} мест(а)</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endif %}
+
+        <!-- Информация водителю -->
+        {% if user and user.id == ride.driver_id %}
+        <div class="info-card">
+            <div class="card-title">
+                <i class="bi bi-people"></i> Ваши пассажиры
+            </div>
+
+            {% set approved_bookings = bookings|selectattr('status', 'equalto', 'approved')|list %}
+            {% if approved_bookings %}
+            {% for booking in approved_bookings %}
+            <div class="passenger-item">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="passenger-avatar">{{ booking.passenger.name[0] }}</div>
+                    <div>
+                        <div class="fw-bold">{{ booking.passenger.name }}</div>
+                        <div class="small text-muted">{{ booking.seats }} мест(а)</div>
+                        {% if booking.pickup_point %}
+                        <div class="small"><i class="bi bi-geo-alt"></i> Забрать: {{ booking.pickup_point }}</div>
+                        {% endif %}
+                    </div>
+                    <a href="/chat/{{ ride.id }}" class="btn btn-sm btn-primary ms-auto">
+                        <i class="bi bi-chat"></i>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p class="text-muted">Пока нет подтвержденных пассажиров</p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Описание поездки -->
+        {% if ride.description %}
+        <div class="info-card">
+            <div class="card-title">
+                <i class="bi bi-chat"></i> Подробности
+            </div>
+            <p>{{ ride.description }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Для водителя - заявки на бронирование -->
+        {% if user and user.id == ride.driver_id %}
+        <div class="info-card">
+            <div class="card-title">
+                <i class="bi bi-list-check"></i> Заявки на бронирование
+                <span class="badge bg-primary ms-auto">{{ bookings|selectattr('status', 'equalto', 'pending')|list|length }} новых</span>
+            </div>
+
+            {% if bookings %}
+            {% for b in bookings %}
+            {% if b.status != 'cancelled' %}
+            <div class="booking-item">
+                <div class="booking-header">
+                    <div class="passenger-name">
+                        <span class="passenger-avatar">{{ b.passenger.name[0] }}</span>
+                        {{ b.passenger.name }}
+                    </div>
+                    <span class="booking-status
+                                {% if b.status == 'pending' %}bg-warning text-dark
+                                {% elif b.status == 'approved' %}bg-success text-white
+                                {% elif b.status == 'rejected' %}bg-danger text-white
+                                {% endif %}">
+                                {% if b.status == 'pending' %}⏳ Ожидание
+                                {% elif b.status == 'approved' %}✅ Подтверждено
+                                {% elif b.status == 'rejected' %}❌ Отклонено
+                                {% endif %}
+                            </span>
+                </div>
+
+                <div style="font-size: 0.95rem; color: #6c757d;">
+                    <div><i class="bi bi-people"></i> {{ b.seats }} мест(а)</div>
+                    {% if b.pickup_point %}
+                    <div><i class="bi bi-geo-alt"></i> Забрать: {{ b.pickup_point }}</div>
+                    {% endif %}
+                    {% if b.dropoff_point %}
+                    <div><i class="bi bi-flag"></i> Высадить: {{ b.dropoff_point }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="booking-actions">
+                    <a style="text-decoration: none" href="/chat/{{ ride.id }}" class="btn-sm btn-primary">
+                        <i class="bi bi-chat"></i> Чат
+                    </a>
+                    {% if b.status == 'pending' %}
+                    <button class="btn-sm btn-success" onclick="approveBooking({{ b.id }})">
+                        <i class="bi bi-check"></i> Подтвердить
+                    </button>
+                    <button class="btn-sm btn-danger" onclick="rejectBooking({{ b.id }})">
+                        <i class="bi bi-x"></i> Отклонить
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+            {% else %}
+            <p class="text-muted text-center py-3">Пока нет заявок</p>
+            {% endif %}
+        </div>
+        {% if ride.status == 'active' and ride.departure_time < now %}
+        <div class="info-card">
+            <div class="card-title">
+                <i class="bi bi-check-circle"></i> Завершение поездки
+            </div>
+            <p>Поездка уже должна была состояться. Отметьте как завершенную, чтобы пассажиры могли оставить отзывы.</p>
+            <button class="btn btn-success w-100" onclick="completeRide({{ ride.id }})">
+                <i class="bi bi-check"></i> Отметить как завершенную
+            </button>
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+
+    <!-- Правая колонка - бронирование -->
+    <div>
+        <div class="booking-card">
+            {% if user and user.id == ride.driver_id %}
+            <!-- Для водителя - статистика -->
+            <div class="price-badge text-center">Ваша поездка</div>
+            <div class="status-alert status-approved">
+                <i class="bi bi-check-circle-fill"></i>
+                <div>
+                    <strong>Поездка активна</strong><br>
+                    <small>Ожидает пассажиров</small>
+                </div>
+            </div>
+            {% if user and user.id == ride.driver_id and ride.status == 'active' %}
+            <div class="info-card">
+                <div class="card-title">
+                    <i class="bi bi-check-circle"></i> Завершение поездки
+                </div>
+                <p>Если поездка уже состоялась, отметьте её как завершенную, чтобы пассажиры могли оставить отзывы.</p>
+                <button class="btn btn-success w-100" onclick="completeRide({{ ride.id }})">
+                    <i class="bi bi-check"></i> Отметить как завершенную
+                </button>
+            </div>
+            {% endif %}
+            {% else %}
+            {% set passenger_booking = bookings|selectattr('passenger_id', 'equalto', user.id)|first %}
+
+            {% if passenger_booking %}
+            <!-- Статус бронирования -->
+            <div class="price-badge text-center">
+                {% if passenger_booking.status == 'approved' %}
+                ✅ Подтверждено
+                {% elif passenger_booking.status == 'pending' %}
+                ⏳ Ожидание
+                {% elif passenger_booking.status == 'rejected' %}
+                ❌ Отклонено
+                {% endif %}
+            </div>
+
+            <div class="status-alert status-{{ passenger_booking.status }}">
+                <i class="bi
+                            {% if passenger_booking.status == 'approved' %}bi-check-circle-fill
+                            {% elif passenger_booking.status == 'pending' %}bi-hourglass-split
+                            {% else %}bi-exclamation-triangle-fill
+                            {% endif %}">
+                </i>
+                <div>
+                    <strong>
+                        {% if passenger_booking.status == 'approved' %}
+                        Бронирование подтверждено
+                        {% elif passenger_booking.status == 'pending' %}
+                        Ожидает подтверждения водителя
+                        {% elif passenger_booking.status == 'rejected' %}
+                        Водитель отклонил заявку
+                        {% endif %}
+                    </strong>
+                    <br>
+                    <small>{{ passenger_booking.seats }} мест(а)</small>
+                </div>
+            </div>
+
+            <div class="contact-buttons" style="flex-direction: column;">
+                <a style="text-decoration: none" href="/chat/{{ ride.id }}" class="contact-btn btn-primary">
+                    <i class="bi bi-chat"></i> Чат с водителем
+                </a>
+                {% if passenger_booking.status != 'rejected' %}
+                <button class="contact-btn btn-book-danger" onclick="cancelBooking({{ ride.id }})">
+                    <i class="bi bi-x-circle"></i> Отменить бронь
+                </button>
+                {% if user and user.id == ride.driver_id and ride.status == 'active' %}
+                <div class="info-card">
+                    <div class="card-title">
+                        <i class="bi bi-check-circle"></i> Завершение поездки
+                    </div>
+                    <p>Если поездка уже состоялась, отметьте её как завершенную, чтобы пассажиры могли оставить отзывы.</p>
+                    <button class="btn btn-success w-100" onclick="completeRide({{ ride.id }})">
+                        <i class="bi bi-check"></i> Отметить как завершенную
+                    </button>
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
+            {% if user and user.id == ride.driver_id and ride.status == 'active' %}
+            <div class="info-card">
+                <div class="card-title">
+                    <i class="bi bi-check-circle"></i> Завершение поездки
+                </div>
+                <p>Если поездка уже состоялась, отметьте её как завершенную, чтобы пассажиры могли оставить отзывы.</p>
+                <button class="btn btn-success w-100" onclick="completeRide({{ ride.id }})">
+                    <i class="bi bi-check"></i> Отметить как завершенную
+                </button>
+            </div>
+            {% endif %}
+            {% elif ride.seats > 0 %}
+            <!-- Форма бронирования -->
+            <div class="price-badge text-center">
+                {% if ride.price == 0 %}
+                🎁 Бесплатно
+                {% else %}
+                {{ ride.price }} ₽
+                {% endif %}
+            </div>
+
+            <div class="seats-selector">
+                <label><i class="bi bi-people"></i> Количество мест</label>
+                <select id="seats">
+                    {% for i in range(1, ride.seats + 1) %}
+                    <option value="{{ i }}">{{ i }} {{ 'место' if i == 1 else 'места' if i < 5 else 'мест' }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="location-input">
+                <label><i class="bi bi-geo-alt"></i> Где забрать?</label>
+                <input type="text" id="pickup" value="{{ ride.from_place }}" placeholder="Адрес">
+            </div>
+
+            <div class="location-input">
+                <label><i class="bi bi-flag"></i> Где высадить?</label>
+                <input type="text" id="dropoff" value="{{ ride.to_place }}" placeholder="Адрес">
+            </div>
+
+            <button class="btn-book btn-book-primary" onclick="bookRide({{ ride.id }})">
+                <i class="bi bi-send"></i> Отправить заявку
+            </button>
+
+            {% else %}
+            <div class="status-alert status-rejected">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <div>
+                    <strong>Нет свободных мест</strong><br>
+                    <small>Попробуйте найти другую поездку</small>
+                </div>
+            </div>
+
+            <a href="/search" class="btn-book btn-book-primary" style="display: block; text-align: center; text-decoration: none;">
+                <i class="bi bi-search"></i> Поиск поездок
+            </a>
+            {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function completeRide(rideId) {
+        if (confirm('Отметить поездку как завершенную?')) {
+            fetch(`/api/complete_ride/${rideId}`, {method: 'POST'})
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('✅ Поездка завершена');
+                        location.reload();
+                    }
+                });
+        }
+    }
+</script>
+<script>
+    let map;
+
+    ymaps.ready(init);
+
+    function init() {
+        map = new ymaps.Map("map", {
+            center: [{{ (ride.from_lat + ride.to_lat)/2 }}, {{ (ride.from_lng + ride.to_lng)/2 }}],
+            zoom: 12,
+            controls: ['zoomControl', 'fullscreenControl']
+        });
+
+        ymaps.route([
+            [{{ ride.from_lat }}, {{ ride.from_lng }}],
+            [{{ ride.to_lat }}, {{ ride.to_lng }}]
+        ]).then(function(route) {
+            map.geoObjects.add(route);
+        });
+
+        const fromPlacemark = new ymaps.Placemark(
+            [{{ ride.from_lat }}, {{ ride.from_lng }}],
+            { balloonContent: 'Отправление: {{ ride.from_place }}' },
+            { preset: 'islands#greenDotIcon' }
+        );
+
+        const toPlacemark = new ymaps.Placemark(
+            [{{ ride.to_lat }}, {{ ride.to_lng }}],
+            { balloonContent: 'Прибытие: {{ ride.to_place }}' },
+            { preset: 'islands#redDotIcon' }
+        );
+
+        map.geoObjects.add(fromPlacemark);
+        map.geoObjects.add(toPlacemark);
+    }
+
+    function bookRide(rideId) {
+        const seats = document.getElementById('seats').value;
+        const pickup = document.getElementById('pickup').value;
+        const dropoff = document.getElementById('dropoff').value;
+
+        fetch('/api/book_ride', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                ride_id: rideId,
+                seats: parseInt(seats),
+                pickup_point: pickup,
+                dropoff_point: dropoff
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ Заявка отправлена!');
+                location.reload();
+            } else {
+                alert('❌ Ошибка: ' + data.error);
+            }
+        });
+    }
+
+    function cancelBooking(rideId) {
+        if (confirm('Отменить бронирование?')) {
+            fetch('/api/cancel_booking', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ ride_id: rideId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ Бронирование отменено');
+                    location.reload();
+                }
+            });
+        }
+    }
+
+    function approveBooking(bookingId) {
+        fetch(`/api/approve_booking/${bookingId}`, {method: 'POST'})
+            .then(() => location.reload());
+    }
+
+    function rejectBooking(bookingId) {
+        fetch(`/api/reject_booking/${bookingId}`, {method: 'POST'})
+            .then(() => location.reload());
+    }
+
+    function toggleFavoriteDriver(driverId) {
+        fetch('/api/favorite_driver', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ driver_id: driverId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const btn = document.getElementById('favoriteBtn');
+            if (data.favorite) {
+                btn.innerHTML = '<i class="bi bi-star-fill"></i> В избранном';
+                btn.classList.add('active');
+                showNotification('success', '✅ Добавлено в избранное');
+            } else {
+                btn.innerHTML = '<i class="bi bi-star"></i> Добавить в избранное';
+                btn.classList.remove('active');
+                showNotification('info', '❌ Удалено из избранного');
+            }
+        });
+    }
+</script>
+{% endblock %}

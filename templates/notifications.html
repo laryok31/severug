@@ -1,0 +1,137 @@
+<!-- Система уведомлений -->
+<div id="notification-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+
+<style>
+    .notification {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        margin-bottom: 10px;
+        padding: 15px 20px;
+        min-width: 300px;
+        max-width: 400px;
+        animation: slideIn 0.3s ease;
+        border-left: 4px solid;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    .notification:hover {
+        transform: translateX(-5px);
+    }
+    .notification.info { border-left-color: #17a2b8; }
+    .notification.success { border-left-color: #28a745; }
+    .notification.warning { border-left-color: #ffc107; }
+    .notification.error { border-left-color: #dc3545; }
+    .notification-title {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    .notification-text {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    .notification-close {
+        float: right;
+        cursor: pointer;
+        color: #999;
+    }
+    .notification-close:hover {
+        color: #333;
+    }
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+</style>
+
+<script>
+    let notificationCheckInterval = null;
+    let lastNotificationId = 0;
+
+    function showNotification(type, title, text, link = null, duration = 5000) {
+        const container = document.getElementById('notification-container');
+        const id = 'notif_' + Date.now() + '_' + Math.random();
+
+        const icons = {
+            'info': 'ℹ️',
+            'success': '✅',
+            'warning': '⚠️',
+            'error': '❌',
+            'new_message': '💬',
+            'new_booking': '📋',
+            'booking_approved': '✅',
+            'booking_rejected': '❌',
+            'ride_created': '🚗',
+            'regular_ride': '📅'
+        };
+
+        const icon = icons[type] || '🔔';
+
+        const html = `
+            <div id="${id}" class="notification ${type}" onclick="window.location.href='${link}'">
+                <span class="notification-close" onclick="event.stopPropagation(); closeNotification('${id}')">✕</span>
+                <div class="notification-title">${icon} ${title}</div>
+                <div class="notification-text">${text}</div>
+            </div>
+        `;
+
+        container.insertAdjacentHTML('beforeend', html);
+
+        // Автоматическое скрытие
+        setTimeout(() => {
+            closeNotification(id);
+        }, duration);
+    }
+
+    function closeNotification(id) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => el.remove(), 300);
+        }
+    }
+
+    function checkNewNotifications() {
+        fetch('/api/check_notifications?since=' + lastNotificationId)
+            .then(response => response.json())
+            .then(data => {
+                if (data.notifications && data.notifications.length > 0) {
+                    data.notifications.forEach(notif => {
+                        showNotification(
+                            notif.type,
+                            notif.title,
+                            notif.text,
+                            notif.link,
+                            7000
+                        );
+                        if (notif.id > lastNotificationId) {
+                            lastNotificationId = notif.id;
+                        }
+                    });
+                }
+            });
+    }
+
+    // Запускаем проверку каждые 10 секунд только если пользователь авторизован
+    {% if user %}
+        // Получаем последний ID при загрузке
+        fetch('/api/last_notification_id')
+            .then(response => response.json())
+            .then(data => {
+                lastNotificationId = data.last_id;
+                // Запускаем проверку
+                notificationCheckInterval = setInterval(checkNewNotifications, 10000);
+            });
+    {% endif %}
+
+    // Останавливаем проверку при выходе
+    window.addEventListener('beforeunload', function() {
+        if (notificationCheckInterval) {
+            clearInterval(notificationCheckInterval);
+        }
+    });
+</script>
