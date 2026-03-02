@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}Новости | Север-Юг{% endblock %}
+
+{% block extra_css %}
+<style>
+    .news-hero {
+        background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%);
+        border-radius: 40px;
+        padding: 60px 40px;
+        color: white;
+        margin-bottom: 40px;
+        text-align: center;
+    }
+
+    .news-hero h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 15px;
+    }
+
+    .news-hero p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .news-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+
+    .news-card {
+        background: white;
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid #f1f5f9;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+    .news-card:hover {
+        transform: translateY(-10px);
+        border-color: #4f46e5;
+        box-shadow: 0 20px 40px rgba(79, 70, 229, 0.1);
+    }
+
+    .news-image {
+        height: 200px;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%);
+    }
+
+    .news-category {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        padding: 6px 16px;
+        border-radius: 30px;
+        background: rgba(255,255,255,0.9);
+        color: #4f46e5;
+        font-size: 0.8rem;
+        font-weight: 600;
+        backdrop-filter: blur(5px);
+    }
+
+    .news-content {
+        padding: 25px;
+    }
+
+    .news-date {
+        color: #818cf8;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .news-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 12px;
+        line-height: 1.4;
+    }
+
+    .news-excerpt {
+        color: #64748b;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+
+    .news-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 15px;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .news-views {
+        color: #94a3b8;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .news-read-more {
+        color: #4f46e5;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .news-read-more:hover {
+        gap: 8px;
+    }
+
+    @media (max-width: 768px) {
+        .news-hero {
+            padding: 40px 20px;
+        }
+
+        .news-hero h1 {
+            font-size: 2.2rem;
+        }
+
+        .news-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="news-hero">
+    <h1><i class="bi bi-newspaper"></i> Новости и события</h1>
+    <p>Будьте в курсе последних обновлений и новостей сервиса</p>
+</div>
+
+<div class="news-grid" id="newsGrid">
+    <!-- Сюда загрузятся новости через JavaScript -->
+</div>
+
+<!-- Модальное окно для полной новости -->
+<div class="modal fade" id="newsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border-radius: 30px; overflow: hidden;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%); color: white; border: none;">
+                <h5 class="modal-title" id="modalTitle"></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4" id="modalBody">
+                <!-- Контент новости -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function loadNews() {
+        fetch('/api/news')
+            .then(response => response.json())
+            .then(news => {
+                const grid = document.getElementById('newsGrid');
+
+                if (news.length === 0) {
+                    grid.innerHTML = '<p class="text-center py-5">Новостей пока нет</p>';
+                    return;
+                }
+
+                let html = '';
+                news.forEach(item => {
+                    // Определяем цвет фона для категории
+                    const categoryColors = {
+                        'news': { bg: '#e0f2fe', color: '#0369a1' },
+                        'update': { bg: '#fef9c3', color: '#854d0e' },
+                        'ferry': { bg: '#dbeafe', color: '#1e40af' },
+                        'tips': { bg: '#dcfce7', color: '#166534' },
+                        'technical': { bg: '#fee2e2', color: '#991b1b' }
+                    };
+
+                    const catColor = categoryColors[item.category] || { bg: '#f1f5f9', color: '#475569' };
+
+                    html += `
+                        <div class="news-card" onclick="showNews(${item.id})">
+                            <div class="news-image">
+                                <span style="font-size: 4rem;">${item.image}</span>
+                                <span class="news-category" style="background: ${catColor.bg}; color: ${catColor.color};">${item.category}</span>
+                            </div>
+                            <div class="news-content">
+                                <div class="news-date">${item.date}</div>
+                                <h3 class="news-title">${item.title}</h3>
+                                <p class="news-excerpt">${item.excerpt}</p>
+                                <div class="news-meta">
+                                    <span class="news-views">
+                                        <i class="bi bi-eye"></i> ${item.views}
+                                    </span>
+                                    <span class="news-read-more">
+                                        Читать <i class="bi bi-arrow-right"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                grid.innerHTML = html;
+            });
+    }
+
+    function showNews(newsId) {
+        fetch(`/api/news/${newsId}`)
+            .then(response => response.json())
+            .then(item => {
+                document.getElementById('modalTitle').textContent = item.title;
+
+                let contentHtml = `
+                    <div class="mb-4">
+                        <span class="badge bg-primary">${item.category}</span>
+                        <small class="text-muted ms-3">${item.date} • 👁 ${item.views} просмотров</small>
+                    </div>
+                    <div class="news-full-content">
+                        ${item.content.replace(/\n/g, '<br>')}
+                    </div>
+                `;
+
+                document.getElementById('modalBody').innerHTML = contentHtml;
+
+                const modal = new bootstrap.Modal(document.getElementById('newsModal'));
+                modal.show();
+
+                // Обновляем просмотры
+                setTimeout(loadNews, 1000);
+            });
+    }
+
+    loadNews();
+</script>
+{% endblock %}

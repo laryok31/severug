@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>{% block title %}Север-Юг{% endblock %}</title>
+    <meta name="yandex-verification" content="4f8eaa64670acc49" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <style>
+        /* ===== ОСНОВНЫЕ СТИЛИ ===== */
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --bg-color: #f5f7fa;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 0 20px; /* Отступы по бокам */
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Контейнер с отступами */
+        .container-custom {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 20px;
+            width: 100%;
+        }
+
+        /* ===== ХЕАДЕР ===== */
+        .header {
+            background: white;
+            border-radius: 0 0 30px 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            margin-bottom: 40px;
+            padding: 0 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.85);
+            border-bottom: 1px solid rgba(79, 70, 229, 0.1);
+            box-shadow: 0 4px 30px rgba(79, 70, 229, 0.05);
+        }
+
+        .header-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 85px; /* Было 70px, увеличили */
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Увеличили */
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 700;
+            font-size: 1.5rem; /* Было 1.4rem */
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary) 0%, #6366f1 100%);
+            width: 45px; /* Было 40px */
+            height: 45px; /* Было 40px */
+            border-radius: 14px; /* Было 12px */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.4rem; /* Было 1.2rem */
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+        }
+
+        /* Десктоп навигация */
+        .nav-desktop {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            padding: 8px 18px; /* Увеличили padding */
+            border-radius: 30px;
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem; /* Было 0.95rem */
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px; /* Увеличили */
+        }
+
+        .nav-link i {
+            font-size: 1.2rem; /* Увеличили иконки */
+        }
+
+        .nav-link:hover {
+            background: var(--light);
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            background: var(--light);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Кнопка уведомлений */
+        .notification-btn {
+        position: relative;
+        background: none;
+        border: none;
+        padding: 10px; /* Увеличили */
+        border-radius: 50%;
+        color: var(--secondary);
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 1.3rem; /* Увеличили иконку */
+    }
+
+        .notification-btn:hover {
+            background: var(--light);
+            color: var(--primary);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            min-width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            border: 2px solid white;
+        }
+
+        /* Аватар пользователя */
+        .user-avatar {
+        width: 42px; /* Было 36px */
+        height: 42px; /* Было 36px */
+        border-radius: 12px; /* Было 10px */
+        background: linear-gradient(135deg, var(--primary) 0%, #6366f1 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 1.1rem; /* Было 1rem */
+        cursor: pointer;
+        margin-left: 8px;
+    }
+
+        /* Мобильное меню */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--dark);
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 70px;
+            left: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 20px;
+            z-index: 999;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .mobile-menu.active {
+            display: block;
+        }
+
+        .mobile-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            border-radius: 16px;
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .mobile-nav-item:last-child {
+            border-bottom: none;
+        }
+
+        .mobile-nav-item:hover {
+            background: var(--light);
+            color: var(--primary);
+        }
+
+        .mobile-nav-item i {
+            width: 24px;
+            color: var(--primary);
+        }
+
+        /* ===== УВЕДОМЛЕНИЯ ===== */
+        .notification-panel {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 420px;
+            max-width: calc(100vw - 40px);
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+            z-index: 1001;
+            display: none;
+            animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255,255,255,0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.98);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .notification-header {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .notification-header h6 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #1e293b;
+        }
+
+        .notification-subtitle {
+            margin: 4px 0 0;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-mark-read, .btn-close-panel {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            border: 1px solid #f1f5f9;
+            background: white;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-mark-read:hover {
+            background: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+            transform: scale(1.05);
+        }
+
+        .btn-close-panel:hover {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+            transform: rotate(90deg);
+        }
+
+        .notification-tabs {
+            display: flex;
+            gap: 4px;
+            padding: 16px 24px 8px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            background: transparent;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .tab-btn.active {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .notification-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .notification-item {
+            padding: 16px;
+            border-radius: 20px;
+            margin-bottom: 8px;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            animation: slideIn 0.2s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .notification-item:hover {
+            transform: translateX(5px);
+            border-color: #4f46e5;
+            background: white;
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.1);
+        }
+
+        .notification-item.unread {
+            background: #eef2ff;
+            border-left: 4px solid #4f46e5;
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+        }
+
+        .notification-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #1e293b;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-badge-new {
+            background: #4f46e5;
+            color: white;
+            font-size: 0.6rem;
+            padding: 2px 8px;
+            border-radius: 30px;
+        }
+
+        .notification-text {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .notification-time {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .notification-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #f1f5f9;
+            text-align: center;
+        }
+
+        .view-all {
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .view-all:hover {
+            gap: 12px;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .notification-panel {
+                top: 70px;
+                left: 10px;
+                right: 10px;
+                width: auto;
+                max-width: none;
+            }
+        }
+
+        /* ===== ОСНОВНОЙ КОНТЕНТ ===== */
+        .main-content {
+            flex: 1;
+            max-width: 1280px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 0 20px;
+        }
+
+        /* ===== ФУТЕР ===== */
+        .footer {
+            background: white;
+            border-radius: 30px 30px 0 0;
+            padding: 60px 20px 30px;
+            margin-top: 60px;
+            font-size: 1rem; /* Увеличили базовый шрифт */
+        }
+
+        .footer-made {
+            font-size: 1rem; /* Было 0.9rem */
+            color: var(--secondary);
+        }
+
+        .footer-made a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+            font-size: 1rem;
+        }
+
+        .footer-made a:hover {
+            color: #4338ca;
+            text-decoration: underline;
+        }
+
+        .footer-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .footer-logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, #6366f1 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .footer-logo-text {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--dark);
+        }
+
+        .footer-description {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            max-width: 300px;
+        }
+
+        .footer-title {
+            font-weight: 600;
+            font-size: 1.1rem; /* Было 1rem */
+            color: var(--dark);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-link {
+            margin-bottom: 12px;
+        }
+
+        .footer-link a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-size: 1rem; /* Было 0.9rem */
+            transition: all 0.2s;
+        }
+
+        .footer-link a:hover {
+            color: var(--primary);
+        }
+
+        .footer-bottom {
+            padding-top: 30px;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            color: var(--secondary);
+            font-size: 1rem; /* Было 0.9rem */
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-link {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .social-link:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        /* ===== COOKIES BANNER ===== */
+        .cookies-banner {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            max-width: 400px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 20px;
+            z-index: 9999;
+            animation: slideUp 0.3s ease;
+            border: 1px solid #f1f5f9;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cookies-text {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .cookies-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .cookies-btn {
+            padding: 10px 20px;
+            border-radius: 30px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+        }
+
+        .cookies-btn.accept {
+            background: var(--primary);
+            color: white;
+        }
+
+        .cookies-btn.accept:hover {
+            background: #4338ca;
+        }
+
+        .cookies-btn.decline {
+            background: var(--light);
+            color: var(--secondary);
+        }
+
+        .cookies-btn.decline:hover {
+            background: #e2e8f0;
+        }
+
+        /* ===== АДАПТИВНОСТЬ ===== */
+        @media (max-width: 768px) {
+            body {
+                padding: 0 5px;
+            }
+
+            .nav-desktop {
+                display: none;
+            }
+
+            .main-content {
+                padding: 0 5px;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .notification-panel {
+                top: 70px;
+                left: 15px;
+                right: 15px;
+                width: auto;
+            }
+
+            .cookies-banner {
+                left: 15px;
+                right: 15px;
+                max-width: none;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .footer-grid {
+                grid-template-columns: 2fr 1fr 1fr;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+<!-- ХЕАДЕР -->
+<header class="header">
+    <div class="header-inner">
+        <a href="/" class="logo">
+            <span class="logo-icon">🚗</i></span>
+            <span>Север-Юг</span>
+        </a>
+
+        <!-- Десктоп навигация -->
+        <nav class="nav-desktop">
+            {% if user %}
+            <!-- Авторизованный пользователь -->
+            <a href="/search" class="nav-link">
+                <i class="bi bi-search"></i> Поиск
+            </a>
+
+            <a href="/create_ride" class="nav-link">
+                <i class="bi bi-plus-circle"></i> Создать
+            </a>
+
+            <a href="/chats" class="nav-link">
+                <i class="bi bi-chat"></i> Чаты
+                <span class="notification-badge" id="chatBadge" style="display: none;">0</span>
+            </a>
+
+            <button class="notification-btn" onclick="toggleNotifications(event)">
+                <i class="bi bi-bell"></i>
+                <span class="notification-badge" id="notificationBadge">0</span>
+            </button>
+
+            <div class="user-avatar" onclick="window.location.href='/profile'">
+                {{ user.name[0] }}
+            </div>
+            {% else %}
+            <!-- Неавторизованный пользователь -->
+            <a href="/auth/login" class="nav-link">
+                <i class="bi bi-box-arrow-in-right"></i> Войти
+            </a>
+
+            <a href="/auth/register" class="nav-link">
+                <i class="bi bi-person-plus"></i> Регистрация
+            </a>
+            {% endif %}
+        </nav>
+
+        <!-- Кнопка мобильного меню -->
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+            <i class="bi bi-list"></i>
+        </button>
+    </div>
+</header>
+
+<!-- Мобильное меню -->
+<div class="mobile-menu" id="mobileMenu">
+    {% if user %}
+    <a href="/search" class="mobile-nav-item">
+        <i class="bi bi-search"></i> Поиск
+    </a>
+    <a href="/create_ride" class="mobile-nav-item">
+        <i class="bi bi-plus-circle"></i> Создать
+    </a>
+    <a href="/chats" class="mobile-nav-item">
+        <i class="bi bi-chat"></i> Чаты
+        <span class="notification-badge" id="mobileChatBadge" style="display: none;">0</span>
+    </a>
+    <a href="/profile" class="mobile-nav-item">
+        <i class="bi bi-person"></i> Профиль
+    </a>
+    <a href="#" class="mobile-nav-item" onclick="toggleNotifications(event)">
+        <i class="bi bi-bell"></i> Уведомления
+        <span class="notification-badge" id="mobileNotificationBadge">0</span>
+    </a>
+    <a href="/auth/logout" class="mobile-nav-item">
+        <i class="bi bi-box-arrow-right"></i> Выйти
+    </a>
+    {% else %}
+    <a href="/auth/login" class="mobile-nav-item">
+        <i class="bi bi-box-arrow-in-right"></i> Войти
+    </a>
+    <a href="/auth/register" class="mobile-nav-item">
+        <i class="bi bi-person-plus"></i> Регистрация
+    </a>
+    {% endif %}
+</div>
+
+<!-- Панель уведомлений (новый дизайн) -->
+<div class="notification-panel" id="notificationPanel">
+    <div class="notification-header">
+        <div>
+            <h6><i class="bi bi-bell"></i> Уведомления</h6>
+            <p class="notification-subtitle">Новые события и обновления</p>
+        </div>
+        <div class="notification-actions">
+            <button class="btn-mark-read" onclick="markAllRead()" title="Отметить все">
+                <i class="bi bi-check2-all"></i>
+            </button>
+            <button class="btn-close-panel" onclick="toggleNotifications(event)">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="notification-tabs">
+        <button class="tab-btn active" onclick="switchTab('all')">Все</button>
+        <button class="tab-btn" onclick="switchTab('unread')">Непрочитанные</button>
+        <button class="tab-btn" onclick="switchTab('important')">Важные</button>
+    </div>
+
+    <div class="notification-list" id="notificationList">
+        <!-- Сюда загрузятся уведомления -->
+    </div>
+
+    <div class="notification-footer">
+        <a href="/profile#notifications" class="view-all">
+            Все уведомления <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+</div>
+
+<!-- COOKIES BANNER -->
+<div class="cookies-banner" id="cookiesBanner" style="display: none;">
+    <div class="cookies-text">
+        <strong><i class="bi bi-info-circle"></i> Мы используем cookies</strong>
+        <p class="mb-0 mt-2">Без них в интернете не обойтись. Это помогает нам улучшать работу сайта. Продолжая использование, вы соглашаетесь на условия <a href="/privacy" target="_blank">Политики конфидициальности сервиса</a> и обработку cookies.</p>
+    </div>
+    <div class="cookies-buttons">
+        <button class="cookies-btn accept" onclick="acceptCookies()">Принять</button>
+        <button class="cookies-btn decline" onclick="declineCookies()">Отказаться</button>
+    </div>
+</div>
+
+<!-- ОСНОВНОЙ КОНТЕНТ -->
+<main class="main-content">
+    {% block content %}{% endblock %}
+</main>
+
+<!-- ФУТЕР -->
+<footer class="footer">
+    <div class="footer-inner">
+        <div class="footer-grid">
+            <div>
+                <div class="footer-logo">
+                    <span class="footer-logo-icon">🚢</i></span>
+                    <span class="footer-logo-text">Север-Юг</span>
+                </div>
+                <p class="footer-description" style="font-size: 0.8rem; max-width: 400px;">
+                    Сервис является информационной площадкой для поиска попутчиков. Мы не организуем перевозки,
+                    не принимаем оплату и не несем ответственности за действия водителей и пассажиров.
+                    Указанная сумма является добровольной компенсацией расходов на топливо.
+                </p>
+            </div>
+
+            <!--<div>
+                <h6 class="footer-title">Поездки</h6>
+                <ul class="footer-links">
+                    <li class="footer-link"><a href="/search">Найти поездку</a></li>
+                    <li class="footer-link"><a href="/create_ride">Создать поездку</a></li>
+                    <li class="footer-link"><a href="/regular_rides">Регулярные</a></li>
+                </ul>
+            </div>--!>
+
+            <div>
+                <h6 class="footer-title">Информация</h6>
+                <ul class="footer-links">
+                    <li class="footer-link"><a href="/how-it-works">Как это работает</a></li>
+                    <li class="footer-link"><a href="/faq">Частые вопросы</a></li>
+                    <li class="footer-link"><a href="/news">Новости</a></li>
+                    {% if user %}
+                    <li class="footer-link"><a href="/city-chat">Чат города</a></li>
+                    <li class="footer-link"><a href="/invite">Пригласить друзей</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <div>
+                <h6 class="footer-title">Контакты</h6>
+                <ul class="footer-links">
+                    <li class="footer-link"><a href="/support">Поддержка</a></li>
+                    <li class="footer-link"><a href="https://t.me/l_arick" target="_blank">Telegram</a></li>
+                    <li class="footer-link"><a href="mailto:sevsite@yandex .ru">support@sev-sever-ug.ru</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h6 class="footer-title">Правовая информация</h6>
+                <ul class="footer-links">
+                    <li class="footer-link"><a href="/terms">Пользовательское соглашение</a></li>
+                    <li class="footer-link"><a href="/privacy">Политика конфиденциальности</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div>© 2026 Север-Юг. Сделано в Севастополе с ❤️ для города</div>
+
+            <div class="footer-made">
+                <a href="https://t.me/l_arick" target="_blank" style="color: var(--secondary); text-decoration: none;">
+                    larick.studio
+                </a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Донат временно скрыт -->
+{#
+<div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
+    <a href="/donate" class="btn btn-primary" style="border-radius: 50px; padding: 12px 24px;">
+        <i class="bi bi-heart-fill"></i> Поддержать
+    </a>
+</div>
+#}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // ===== МОБИЛЬНОЕ МЕНЮ =====
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobileMenu');
+        menu.classList.toggle('active');
+    }
+
+    // Закрытие меню при клике вне
+    document.addEventListener('click', function(event) {
+        const menu = document.getElementById('mobileMenu');
+        const btn = document.querySelector('.mobile-menu-btn');
+
+        if (!menu.contains(event.target) && !btn.contains(event.target)) {
+            menu.classList.remove('active');
+        }
+    });
+
+    // ===== УВЕДОМЛЕНИЯ =====
+    let currentTab = 'all';
+    let allNotifications = [];
+
+    function loadNotifications() {
+        fetch('/api/notifications')
+            .then(response => response.json())
+            .then(data => {
+                allNotifications = data;
+                displayNotifications(data);
+                updateBadge(data.length);
+            });
+    }
+
+    function displayNotifications(notifications) {
+        const list = document.getElementById('notificationList');
+
+        if (notifications.length === 0) {
+            list.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="bi bi-bell" style="font-size: 3rem; color: #cbd5e1;"></i>
+                    <p class="mt-3 text-muted">Нет уведомлений</p>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+        notifications.forEach(notif => {
+            const link = notif.link && notif.link !== 'null' ? notif.link : '#';
+            html += `
+                <div class="notification-item ${notif.is_read ? '' : 'unread'}" onclick="window.location.href='${link}'">
+                    <div class="notification-icon">
+                        <i class="bi ${getNotificationIcon(notif.type)}"></i>
+                    </div>
+                    <div class="notification-title">
+                        ${notif.title}
+                        ${!notif.is_read ? '<span class="notification-badge-new">Новое</span>' : ''}
+                    </div>
+                    <div class="notification-text">${notif.text}</div>
+                    <div class="notification-time">
+                        <i class="bi bi-clock"></i> ${notif.created_at}
+                    </div>
+                </div>
+            `;
+        });
+        list.innerHTML = html;
+    }
+
+    function toggleNotifications(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const panel = document.getElementById('notificationPanel');
+        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+
+        if (panel.style.display === 'block') {
+            loadNotifications();
+        }
+    }
+
+    function switchTab(tab) {
+        currentTab = tab;
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+
+        if (tab === 'all') {
+            displayNotifications(allNotifications);
+        } else if (tab === 'unread') {
+            const unread = allNotifications.filter(n => !n.is_read);
+            displayNotifications(unread);
+        }
+    }
+
+    function updateBadge(count) {
+        const badge = document.getElementById('notificationBadge');
+        const mobileBadge = document.getElementById('mobileNotificationBadge');
+
+        badge.textContent = count;
+        mobileBadge.textContent = count;
+
+        badge.style.display = count > 0 ? 'flex' : 'none';
+        mobileBadge.style.display = count > 0 ? 'inline-block' : 'none';
+    }
+
+    function getNotificationIcon(type) {
+        const icons = {
+            'new_message': 'bi-chat',
+            'new_booking_request': 'bi-ticket-perforated',
+            'booking_approved': 'bi-check-circle',
+            'booking_rejected': 'bi-x-circle',
+            'ride_created': 'bi-car-front',
+            'regular_ride_created': 'bi-calendar-week',
+            'telegram_connected': 'bi-telegram',
+            'welcome': 'bi-hand-thumbs-up',
+            'new_support': 'bi-headset',
+            'support_reply': 'bi-reply'
+        };
+        return icons[type] || 'bi-bell';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadNotificationCount();
+    });
+
+    // ===== COOKIES =====
+    function showCookiesBanner() {
+        const banner = document.getElementById('cookiesBanner');
+        if (!localStorage.getItem('cookies_accepted')) {
+            banner.style.display = 'block';
+        }
+    }
+
+    function acceptCookies() {
+        localStorage.setItem('cookies_accepted', 'true');
+        document.getElementById('cookiesBanner').style.display = 'none';
+    }
+
+    function declineCookies() {
+        localStorage.setItem('cookies_accepted', 'false');
+        document.getElementById('cookiesBanner').style.display = 'none';
+    }
+
+    // Показываем баннер при загрузке
+    showCookiesBanner();
+
+    // ===== ЧАТЫ =====
+    function loadChatCount() {
+        fetch('/api/chats')
+            .then(response => response.json())
+            .then(chats => {
+                const totalUnread = chats.reduce((sum, chat) => sum + chat.unread, 0);
+                const badge = document.getElementById('chatBadge');
+                const mobileBadge = document.getElementById('mobileChatBadge');
+
+                if (totalUnread > 0) {
+                    badge.textContent = totalUnread;
+                    badge.style.display = 'flex';
+                    mobileBadge.textContent = totalUnread;
+                    mobileBadge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                    mobileBadge.style.display = 'none';
+                }
+            });
+    }
+
+    // Загружаем количество непрочитанных сообщений
+    loadChatCount();
+    setInterval(loadChatCount, 30000);
+</script>
+
+{% block extra_js %}{% endblock %}
+<!-- Плавающие иконки на фоне -->
+<div class="floating-icons">
+    <div class="floating-icon" style="top: 15%; left: 5%; animation-delay: 0s;">🚗</div>
+    <div class="floating-icon" style="top: 25%; right: 8%; animation-delay: 2s;">⚓</div>
+    <div class="floating-icon" style="bottom: 20%; left: 10%; animation-delay: 4s;">🌊</div>
+    <div class="floating-icon" style="bottom: 30%; right: 15%; animation-delay: 1s;">🗺️</div>
+    <div class="floating-icon" style="top: 40%; left: 20%; animation-delay: 3s;">📍</div>
+    <div class="floating-icon" style="top: 60%; right: 25%; animation-delay: 5s;">⛵</div>
+</div>
+
+<style>
+    .floating-icons {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+        overflow: hidden;
+    }
+
+    .floating-icon {
+        position: absolute;
+        font-size: 3rem;
+        opacity: 0.03;
+        color: #4f46e5;
+        animation: float 20s ease-in-out infinite;
+        filter: blur(1px);
+        transform-origin: center;
+    }
+
+    @keyframes float {
+        0% {
+            transform: translate(0, 0) rotate(0deg) scale(1);
+        }
+        33% {
+            transform: translate(30px, -30px) rotate(10deg) scale(1.1);
+        }
+        66% {
+            transform: translate(-20px, 20px) rotate(-10deg) scale(0.9);
+        }
+        100% {
+            transform: translate(0, 0) rotate(0deg) scale(1);
+        }
+    }
+
+    /* Для мобильных делаем иконки меньше и менее заметными */
+    @media (max-width: 768px) {
+        .floating-icon {
+            font-size: 2rem;
+            opacity: 0.02;
+        }
+    }
+</style>
+<script>
+    // Количество обращений в поддержку (для админа)
+function loadSupportCount() {
+    fetch('/api/support_count')
+        .then(response => response.json())
+        .then(data => {
+            {% if user %}
+            if (data.count > 0 && {{ user.id == 1 }}) {  // Если админ
+                // Показать бейдж
+            }
+            {% endif %}
+        });
+}
+</script>
+</body>
+</html>

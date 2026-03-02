@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Подключить Telegram{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body text-center p-5">
+                <div class="display-1 mb-4">
+                    <i class="bi bi-telegram" style="color: #0088cc;"></i>
+                </div>
+
+                <h2 class="mb-4">Подключите Telegram</h2>
+
+                <p class="lead mb-4">
+                    Получайте уведомления о новых заявках, подтверждениях и сообщениях прямо в Telegram!
+                </p>
+
+                <div class="alert alert-info mb-4">
+                    <h5>📱 Как подключить:</h5>
+                    <ol class="text-start">
+                        <li class="mb-2">
+                            Нажмите кнопку ниже, чтобы открыть бота
+                        </li>
+                        <li class="mb-2">
+                            Нажмите "Start" или отправьте команду <strong>/start</strong>
+                        </li>
+                        <li class="mb-2">
+                            Скопируйте код и отправьте его боту
+                        </li>
+                    </ol>
+                </div>
+
+                <!-- Код для подключения -->
+                <div class="display-4 mb-4 p-4 bg-light rounded" style="font-size: 3rem; letter-spacing: 10px; font-family: monospace;">
+                    <strong>{{ code }}</strong>
+                </div>
+
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle"></i>
+                    Код действителен 5 минут. Отправьте этот код боту в Telegram.
+                </div>
+
+                <div class="mt-4">
+                    <a href="https://t.me/{{ bot_username }}" target="_blank" class="btn btn-primary btn-lg">
+                        <i class="bi bi-telegram"></i> Открыть бота @{{ bot_username }}
+                    </a>
+                    <button class="btn btn-outline-secondary btn-lg mt-2" onclick="copyCode()">
+                        <i class="bi bi-clipboard"></i> Скопировать код
+                    </button>
+                    <a href="/profile" class="btn btn-outline-secondary btn-lg mt-2">
+                        <i class="bi bi-arrow-left"></i> Назад
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function copyCode() {
+        const code = '{{ code }}';
+        navigator.clipboard.writeText(code).then(() => {
+            alert('✅ Код скопирован! Отправьте его боту');
+        });
+    }
+
+    // Проверяем статус подключения каждые 5 секунд
+    function checkConnection() {
+        fetch('/api/check_telegram_connection')
+            .then(response => response.json())
+            .then(data => {
+                if (data.connected) {
+                    alert('✅ Telegram успешно подключен!');
+                    window.location.href = '/profile';
+                }
+            });
+    }
+
+    // Запускаем проверку каждые 5 секунд
+    setInterval(checkConnection, 5000);
+</script>
+{% endblock %}

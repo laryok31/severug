@@ -1,0 +1,479 @@
+{% extends "base.html" %}
+
+{% block title %}Детали поездки | Север-Юг{% endblock %}
+
+{% block extra_css %}
+<script src="https://api-maps.yandex.ru/2.1/?apikey=4932c58f-dc3f-4c34-b0ca-a64c1ef43dca&lang=ru_RU" type="text/javascript"></script>
+<style>
+    /* Современный дизайн для деталей поездки */
+    .ride-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 30px;
+        padding: 30px;
+        color: white;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .ride-hero::before {
+        content: '🚗';
+        position: absolute;
+        right: 20px;
+        bottom: 20px;
+        font-size: 8rem;
+        opacity: 0.1;
+        transform: rotate(15deg);
+    }
+
+    .route-badge {
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 50px;
+        padding: 8px 20px;
+        display: inline-block;
+        margin-bottom: 20px;
+    }
+
+    .driver-card {
+        background: white;
+        border-radius: 25px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        border: 1px solid #e9ecef;
+    }
+
+    .driver-avatar-large {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: bold;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin: 20px 0;
+    }
+
+    .info-item {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 15px;
+        text-align: center;
+    }
+
+    .info-value {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #667eea;
+    }
+
+    .info-label {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+
+    .booking-card {
+        background: white;
+        border-radius: 25px;
+        padding: 25px;
+        margin-bottom: 25px;
+        border: 2px solid #e9ecef;
+    }
+
+    .booking-item {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 15px;
+        border-left: 4px solid;
+        transition: all 0.3s;
+    }
+
+    .booking-item.pending {
+        border-left-color: #ffc107;
+    }
+
+    .booking-item.approved {
+        border-left-color: #28a745;
+    }
+
+    .booking-item.rejected {
+        border-left-color: #dc3545;
+        opacity: 0.7;
+    }
+
+    .booking-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .btn-action {
+        border-radius: 12px;
+        padding: 10px 20px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .btn-action:hover {
+        transform: translateY(-2px);
+    }
+
+    .map-container {
+        border-radius: 25px;
+        overflow: hidden;
+        height: 300px;
+        margin-top: 20px;
+        border: 3px solid white;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+    }
+
+    .status-badge {
+        padding: 5px 12px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-approved {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-rejected {
+        background: #f8d7da;
+        color: #721c24;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Герой секция с маршрутом -->
+<div class="ride-hero">
+    <div class="route-badge">
+        <i class="bi bi-geo-alt"></i> Маршрут
+    </div>
+    <h2 class="mb-3">{{ ride.from_place }} → {{ ride.to_place }}</h2>
+    <div class="d-flex gap-4">
+        <div><i class="bi bi-clock"></i> {{ ride.departure_time.strftime('%d.%m.%Y %H:%M') }}</div>
+        <div><i class="bi bi-people"></i> {{ ride.seats }} мест</div>
+        <div>
+            {% if ride.price == 0 %}
+            <span class="badge bg-warning">Бесплатно</span>
+            {% else %}
+            <span class="badge bg-info">{{ ride.price }} ₽</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Карта -->
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+
+        <!-- Описание поездки -->
+        {% if ride.description %}
+        <div class="driver-card">
+            <h5 class="mb-3"><i class="bi bi-chat"></i> Описание</h5>
+            <p>{{ ride.description }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Для водителя - заявки на бронирование -->
+        {% if user and user.id == ride.driver_id %}
+        <div class="booking-card">
+            <h5 class="mb-4"><i class="bi bi-list-check"></i> Заявки на бронирование</h5>
+            {% if bookings %}
+            {% for b in bookings %}
+            {% if b.status != 'cancelled' %}
+            <div class="booking-item {{ b.status }}">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div style="flex-grow: 1;">
+                        <div class="d-flex align-items-center gap-3 mb-2">
+                            <div class="driver-avatar-small" style="width: 40px; height: 40px; border-radius: 10px; background: #667eea; color: white; display: flex; align-items: center; justify-content: center;">
+                                {{ b.passenger.name[0] }}
+                            </div>
+                            <div>
+                                <strong>{{ b.passenger.name }}</strong>
+                                <span class="status-badge status-{{ b.status }}">
+                                            {% if b.status == 'pending' %}⏳ Ожидание
+                                            {% elif b.status == 'approved' %}✅ Подтверждено
+                                            {% elif b.status == 'rejected' %}❌ Отклонено
+                                            {% endif %}
+                                        </span>
+                            </div>
+                        </div>
+                        <p class="mb-2 small">
+                            <i class="bi bi-people"></i> {{ b.seats }} мест(а)
+                            {% if b.pickup_point %}
+                            <br><i class="bi bi-geo-alt"></i> Забрать: {{ b.pickup_point }}
+                            {% endif %}
+                            {% if b.dropoff_point %}
+                            <br><i class="bi bi-flag"></i> Высадить: {{ b.dropoff_point }}
+                            {% endif %}
+                        </p>
+                        <small class="text-muted">{{ b.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
+                    </div>
+                    <div class="action-buttons">
+                        <a href="/chat/{{ ride.id }}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-chat"></i>
+                        </a>
+                        {% if b.status == 'pending' %}
+                        <button class="btn btn-sm btn-success" onclick="approveBooking({{ b.id }})">
+                            <i class="bi bi-check"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="rejectBooking({{ b.id }})">
+                            <i class="bi bi-x"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+            {% else %}
+            <p class="text-muted text-center py-4">Пока нет заявок</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Карточка водителя -->
+        <div class="driver-card">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="driver-avatar-large">
+                    {{ driver.name[0] }}
+                </div>
+                <div>
+                    <h5 class="mb-1">{{ driver.name }}</h5>
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-primary">⭐ {{ driver.driver_rating|default('5.0') }}</span>
+                        <span class="badge bg-info">{{ driver.trips_count|default(0) }} поездок</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-value">{{ driver.car_model or 'Не указано' }}</div>
+                    <div class="info-label">Автомобиль</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value">{{ driver.car_color or 'Не указан' }}</div>
+                    <div class="info-label">Цвет</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value">{{ driver.car_number or 'Нет' }}</div>
+                    <div class="info-label">Номер</div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2">
+                <a href="tel:{{ driver.contact_phone or driver.phone }}" class="btn btn-success btn-action">
+                    <i class="bi bi-telephone"></i> Позвонить
+                </a>
+                {% if user and user.id != driver.id %}
+                <button class="btn btn-outline-warning btn-action" onclick="toggleFavoriteDriver({{ driver.id }})">
+                    <i class="bi bi-star"></i> В избранное
+                </button>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Для пассажира - бронирование -->
+        {% if user and user.id != ride.driver_id %}
+        <div class="booking-card">
+            <h5 class="mb-4"><i class="bi bi-ticket"></i> Бронирование</h5>
+
+            {% set passenger_booking = bookings|selectattr('passenger_id', 'equalto', user.id)|first %}
+
+            {% if passenger_booking %}
+            <div class="alert alert-{% if passenger_booking.status == 'approved' %}success{% elif passenger_booking.status == 'pending' %}warning{% else %}danger{% endif %}">
+                <strong>
+                    {% if passenger_booking.status == 'approved' %}✅ Подтверждено
+                    {% elif passenger_booking.status == 'pending' %}⏳ Ожидает подтверждения
+                    {% elif passenger_booking.status == 'rejected' %}❌ Отклонено
+                    {% endif %}
+                </strong>
+                <p class="mb-0 small">{{ passenger_booking.seats }} мест(а)</p>
+            </div>
+
+            <div class="action-buttons">
+                <a href="/chat/{{ ride.id }}" class="btn btn-primary btn-action flex-grow-1">
+                    <i class="bi bi-chat"></i> Чат с водителем
+                </a>
+                {% if passenger_booking.status != 'rejected' %}
+                <button class="btn btn-danger btn-action" onclick="cancelBooking({{ ride.id }})">
+                    <i class="bi bi-x-circle"></i>
+                </button>
+                {% endif %}
+            </div>
+
+            {% elif ride.seats > 0 %}
+            <form id="bookingForm">
+                <div class="mb-3">
+                    <label class="form-label">Количество мест</label>
+                    <select class="form-control-custom" id="seats">
+                        {% for i in range(1, ride.seats + 1) %}
+                        <option value="{{ i }}">{{ i }} {{ 'место' if i == 1 else 'места' if i < 5 else 'мест' }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">📍 Где забрать?</label>
+                    <input type="text" class="form-control-custom" id="pickup"
+                           value="{{ ride.from_place }}" placeholder="Адрес">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">🏁 Где высадить?</label>
+                    <input type="text" class="form-control-custom" id="dropoff"
+                           value="{{ ride.to_place }}" placeholder="Адрес">
+                </div>
+
+                <button type="button" class="btn btn-warning btn-action w-100" onclick="bookRide({{ ride.id }})">
+                    <i class="bi bi-send"></i> Отправить заявку
+                </button>
+            </form>
+            {% else %}
+            <div class="alert alert-secondary">
+                <i class="bi bi-info-circle"></i> Нет свободных мест
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    let map;
+    let currentRating = 0;
+
+    ymaps.ready(init);
+
+    function init() {
+        map = new ymaps.Map("map", {
+            center: [{{ (ride.from_lat + ride.to_lat)/2 }}, {{ (ride.from_lng + ride.to_lng)/2 }}],
+            zoom: 12
+        });
+
+        ymaps.route([
+            [{{ ride.from_lat }}, {{ ride.from_lng }}],
+            [{{ ride.to_lat }}, {{ ride.to_lng }}]
+        ]).then(function(route) {
+            map.geoObjects.add(route);
+        });
+
+        const fromPlacemark = new ymaps.Placemark(
+            [{{ ride.from_lat }}, {{ ride.from_lng }}],
+            { balloonContent: 'Отправление: {{ ride.from_place }}' },
+            { preset: 'islands#greenDotIcon' }
+        );
+
+        const toPlacemark = new ymaps.Placemark(
+            [{{ ride.to_lat }}, {{ ride.to_lng }}],
+            { balloonContent: 'Прибытие: {{ ride.to_place }}' },
+            { preset: 'islands#redDotIcon' }
+        );
+
+        map.geoObjects.add(fromPlacemark);
+        map.geoObjects.add(toPlacemark);
+    }
+
+    function bookRide(rideId) {
+        const seats = document.getElementById('seats').value;
+        const pickup = document.getElementById('pickup').value;
+        const dropoff = document.getElementById('dropoff').value;
+
+        fetch('/api/book_ride', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                ride_id: rideId,
+                seats: parseInt(seats),
+                pickup_point: pickup,
+                dropoff_point: dropoff
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ Заявка отправлена!');
+                location.reload();
+            } else {
+                alert('❌ Ошибка: ' + data.error);
+            }
+        });
+    }
+
+    function cancelBooking(rideId) {
+        if (confirm('Отменить бронирование?')) {
+            fetch('/api/cancel_booking', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ ride_id: rideId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ Бронирование отменено');
+                    location.reload();
+                }
+            });
+        }
+    }
+
+    function approveBooking(bookingId) {
+        fetch(`/api/approve_booking/${bookingId}`, {method: 'POST'})
+            .then(() => location.reload());
+    }
+
+    function rejectBooking(bookingId) {
+        fetch(`/api/reject_booking/${bookingId}`, {method: 'POST'})
+            .then(() => location.reload());
+    }
+
+    function toggleFavoriteDriver(driverId) {
+        fetch('/api/favorite_driver', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ driver_id: driverId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.favorite ? '✅ Добавлено в избранное' : '❌ Удалено из избранного');
+        });
+    }
+</script>
+{% endblock %}

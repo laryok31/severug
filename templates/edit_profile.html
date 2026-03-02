@@ -1,0 +1,694 @@
+{% extends "base.html" %}
+
+{% block title %}Настройки профиля | Север-Юг{% endblock %}
+
+{% block extra_css %}
+<style>
+    .settings-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .settings-header {
+        background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%);
+        border-radius: 30px;
+        padding: 40px;
+        color: white;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .settings-header h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+
+    .settings-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        max-width: 500px;
+    }
+
+    .settings-header::before {
+        content: '⚙️';
+        position: absolute;
+        right: 30px;
+        bottom: 20px;
+        font-size: 6rem;
+        opacity: 0.1;
+        transform: rotate(15deg);
+    }
+
+    /* Сетка для ПК - 2 колонки */
+    .settings-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+        margin-bottom: 30px;
+    }
+
+    /* Для мобильных - 1 колонка */
+    @media (max-width: 768px) {
+        .settings-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .settings-card {
+        background: white;
+        border-radius: 30px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        border: 1px solid #f1f5f9;
+        transition: all 0.3s;
+    }
+
+    .settings-card:hover {
+        box-shadow: 0 20px 40px rgba(79, 70, 229, 0.05);
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f1f5f9;
+    }
+
+    .card-header i {
+        font-size: 1.8rem;
+        color: #4f46e5;
+        background: #eef2ff;
+        padding: 12px;
+        border-radius: 18px;
+    }
+
+    .card-header h2 {
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #475569;
+        margin-bottom: 8px;
+    }
+
+    .form-label i {
+        color: #4f46e5;
+        margin-right: 5px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 14px 18px;
+        border: 2px solid #e2e8f0;
+        border-radius: 20px;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+        background: #f8fafc;
+    }
+
+    .form-control:focus {
+        border-color: #4f46e5;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        background: white;
+    }
+
+    /* Переключатели */
+    .toggle-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .toggle-item:last-child {
+        border-bottom: none;
+    }
+
+    .toggle-info h4 {
+        margin: 0 0 4px 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .toggle-info p {
+        margin: 0;
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+
+    .toggle-switch {
+        position: relative;
+        width: 56px;
+        height: 30px;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #cbd5e1;
+        transition: 0.3s;
+        border-radius: 34px;
+    }
+
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 24px;
+        width: 24px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.3s;
+        border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+        background-color: #4f46e5;
+    }
+
+    input:checked + .toggle-slider:before {
+        transform: translateX(26px);
+    }
+
+    /* Кнопки */
+    .btn-save {
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        border: none;
+        border-radius: 30px;
+        color: white;
+        font-weight: 700;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+        margin-top: 20px;
+    }
+
+    .btn-save:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Опасная зона */
+    .danger-zone {
+        background: white;
+        border-radius: 30px;
+        padding: 30px;
+        border: 2px solid #fee2e2;
+        margin-top: 30px;
+    }
+
+    .danger-zone h3 {
+        color: #dc2626;
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .danger-buttons {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .btn-danger {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 30px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-danger.password {
+        background: #f59e0b;
+        color: white;
+    }
+
+    .btn-danger.password:hover {
+        background: #d97706;
+        transform: translateY(-2px);
+    }
+
+    .btn-danger.delete {
+        background: #dc2626;
+        color: white;
+    }
+
+    .btn-danger.delete:hover {
+        background: #b91c1c;
+        transform: translateY(-2px);
+    }
+
+    /* Модальное окно */
+    .modal-custom {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(8px);
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-custom.active {
+        display: flex;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 40px;
+        padding: 40px;
+        max-width: 400px;
+        width: 90%;
+        animation: scaleIn 0.3s ease;
+    }
+
+    @keyframes scaleIn {
+        from { transform: scale(0.9); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-content h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        color: #1e293b;
+    }
+
+    .modal-content p {
+        color: #64748b;
+        margin-bottom: 25px;
+    }
+
+    .modal-input {
+        width: 100%;
+        padding: 15px 20px;
+        border: 2px solid #e2e8f0;
+        border-radius: 20px;
+        font-size: 1rem;
+        margin-bottom: 20px;
+    }
+
+    .modal-input:focus {
+        border-color: #4f46e5;
+        outline: none;
+    }
+
+    .modal-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .modal-btn {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        border-radius: 30px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .modal-btn.cancel {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .modal-btn.confirm {
+        background: #dc2626;
+        color: white;
+    }
+
+    .modal-btn.confirm:hover {
+        background: #b91c1c;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <!-- Шапка -->
+    <div class="settings-header">
+        <h1><i class="bi bi-gear"></i> Настройки профиля</h1>
+        <p>Управляйте вашими данными и приватностью</p>
+    </div>
+
+    <form method="POST" id="settingsForm">
+        <!-- Сетка с двумя колонками -->
+        <div class="settings-grid">
+            <!-- Левая колонка - Основная информация -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <i class="bi bi-person"></i>
+                    <h2>Основная информация</h2>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label"><i class="bi bi-person"></i> Имя</label>
+                    <input type="text" class="form-control" name="name" value="{{ user.name }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label"><i class="bi bi-telephone"></i> Телефон для связи</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="tel" class="form-control" name="contact_phone" id="contactPhone" value="{{ user.contact_phone or user.phone }}" style="flex: 1;" readonly>
+                        <button type="button" class="btn btn-outline-primary" onclick="enablePhoneEdit()" style="border-radius: 20px; padding: 0 20px;">
+                            <i class="bi bi-pencil"></i> Изменить
+                        </button>
+                    </div>
+                    <small class="text-muted">По умолчанию номер входа</small>
+                </div>
+
+                <script>
+                    function enablePhoneEdit() {
+                        document.getElementById('contactPhone').readOnly = false;
+                        document.getElementById('contactPhone').focus();
+                    }
+                </script>
+
+                <div class="form-group">
+                    <label class="form-label"><i class="bi bi-envelope"></i> Email</label>
+                    <input type="email" class="form-control" name="email" value="{{ user.email or '' }}" placeholder="example@mail.ru">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label"><i class="bi bi-telegram"></i> Telegram</label>
+                    <input type="text" class="form-control" name="telegram" value="{{ user.telegram or '' }}" placeholder="@username">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label"><i class="bi bi-chat"></i> Max</label>
+                    <input type="text" class="form-control" name="max" value="{{ user.max or '' }}" placeholder="Ник в Max">
+                </div>
+            </div>
+
+            <!-- Правая колонка - Водитель и Приватность -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <i class="bi bi-truck"></i>
+                    <h2>Водитель</h2>
+                </div>
+
+                <div class="toggle-item">
+                    <div class="toggle-info">
+                        <h4>Я водитель</h4>
+                        <p>У меня есть автомобиль, и я готов подвозить</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="is_driver" id="isDriver" {% if user.is_driver %}checked{% endif %}>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div id="driverFields" style="{% if not user.is_driver %}display: none;{% endif %} margin-top: 20px;">
+                    <div class="form-group">
+                        <label class="form-label"><i class="bi bi-car-front"></i> Марка и модель</label>
+                        <input type="text" class="form-control" name="car_model" value="{{ user.car_model or '' }}" placeholder="Hyundai Solaris">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label"><i class="bi bi-palette"></i> Цвет</label>
+                        <select class="form-control" name="car_color">
+                            <option value="">Выберите цвет</option>
+                            <option value="Белый" {% if user.car_color == 'Белый' %}selected{% endif %}>Белый</option>
+                            <option value="Черный" {% if user.car_color == 'Черный' %}selected{% endif %}>Черный</option>
+                            <option value="Серебристый" {% if user.car_color == 'Серебристый' %}selected{% endif %}>Серебристый</option>
+                            <option value="Серый" {% if user.car_color == 'Серый' %}selected{% endif %}>Серый</option>
+                            <option value="Синий" {% if user.car_color == 'Синий' %}selected{% endif %}>Синий</option>
+                            <option value="Красный" {% if user.car_color == 'Красный' %}selected{% endif %}>Красный</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label"><i class="bi bi-upc-scan"></i> Госномер</label>
+                        <input type="text" class="form-control" name="car_number" value="{{ user.car_number or '' }}" placeholder="А123ВС777">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вторая строка - Приватность (на всю ширину) -->
+        <div class="settings-card" style="margin-bottom: 20px;">
+            <div class="card-header">
+                <i class="bi bi-shield-lock"></i>
+                <h2>Приватность</h2>
+            </div>
+
+            <div class="toggle-item">
+                <div class="toggle-info">
+                    <h4>Показывать профиль</h4>
+                    <p>Ваш профиль будет виден другим пользователям</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" name="show_profile" id="showProfile" {% if user.show_profile %}checked{% endif %}>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="toggle-item">
+                <div class="toggle-info">
+                    <h4>Показывать телефон</h4>
+                    <p>Номер будет виден после подтверждения поездки</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" name="show_phone" id="showPhone" {% if user.show_phone %}checked{% endif %}>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="toggle-item">
+                <div class="toggle-info">
+                    <h4>Показывать рейтинг</h4>
+                    <p>Другие увидят ваши оценки</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" name="show_rating" id="showRating" {% if user.show_rating %}checked{% endif %}>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="toggle-item">
+                <div class="toggle-info">
+                    <h4>Показывать историю поездок</h4>
+                    <p>Ваши прошлые поездки будут видны в профиле</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" name="show_history" id="showHistory" {% if user.show_history %}checked{% endif %}>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="form-group" style="margin-top: 20px;">
+                <label class="form-label"><i class="bi bi-person-lines-fill"></i> О себе</label>
+                <textarea class="form-control" name="bio" rows="3" placeholder="Расскажите немного о себе...">{{ user.bio or '' }}</textarea>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-save">
+            <i class="bi bi-check-circle"></i> Сохранить изменения
+        </button>
+    </form>
+
+    <!-- Опасная зона -->
+    <div class="danger-zone">
+        <h3><i class="bi bi-exclamation-triangle"></i> Опасная зона</h3>
+        <div class="danger-buttons">
+            <button class="btn-danger password" onclick="showPasswordModal()">
+                <i class="bi bi-key"></i> Сменить пароль
+            </button>
+            <button class="btn-danger delete" onclick="showDeleteModal()">
+                <i class="bi bi-trash"></i> Удалить аккаунт
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно смены пароля -->
+<div class="modal-custom" id="passwordModal">
+    <div class="modal-content">
+        <h3><i class="bi bi-key"></i> Смена пароля</h3>
+        <p>Введите новый пароль</p>
+        <input type="password" class="modal-input" id="newPassword" placeholder="Новый пароль" minlength="6">
+        <input type="password" class="modal-input" id="confirmPassword" placeholder="Подтвердите пароль" minlength="6">
+        <div class="modal-buttons">
+            <button class="modal-btn cancel" onclick="closePasswordModal()">Отмена</button>
+            <button class="modal-btn confirm" onclick="changePassword()" style="background: #4f46e5;">Сменить</button>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно удаления -->
+<div class="modal-custom" id="deleteModal">
+    <div class="modal-content">
+        <h3><i class="bi bi-exclamation-triangle" style="color: #dc2626;"></i> Удаление аккаунта</h3>
+        <p>Вы уверены? Это действие нельзя отменить. Все ваши данные будут безвозвратно удалены.</p>
+        <div class="modal-buttons">
+            <button class="modal-btn cancel" onclick="closeDeleteModal()">Отмена</button>
+            <button class="modal-btn confirm" onclick="deleteAccount()">Удалить</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Показывать/скрывать поля водителя
+    document.getElementById('isDriver').addEventListener('change', function() {
+        document.getElementById('driverFields').style.display = this.checked ? 'block' : 'none';
+    });
+
+    // Модальное окно смены пароля
+    function showPasswordModal() {
+        document.getElementById('passwordModal').classList.add('active');
+    }
+
+    function closePasswordModal() {
+        document.getElementById('passwordModal').classList.remove('active');
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmPassword').value = '';
+    }
+
+    function changePassword() {
+        const newPass = document.getElementById('newPassword').value;
+        const confirmPass = document.getElementById('confirmPassword').value;
+
+        if (newPass.length < 6) {
+            alert('Пароль должен быть не менее 6 символов');
+            return;
+        }
+
+        if (newPass !== confirmPass) {
+            alert('Пароли не совпадают');
+            return;
+        }
+
+        fetch('/api/change_password', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ password: newPass })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ Пароль успешно изменен');
+                closePasswordModal();
+            } else {
+                alert('❌ Ошибка: ' + data.error);
+            }
+        });
+    }
+
+    // Модальное окно удаления
+    function showDeleteModal() {
+        document.getElementById('deleteModal').classList.add('active');
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('active');
+    }
+
+    function deleteAccount() {
+        if (confirm('Вы точно уверены? Это действие нельзя отменить!')) {
+            fetch('/api/delete_account', {method: 'DELETE'})
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('✅ Аккаунт удален');
+                        window.location.href = '/';
+                    }
+                });
+        }
+    }
+
+    // Форматирование телефона
+document.querySelector('input[name="contact_phone"]').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 11) value = value.slice(0, 11);
+
+    if (value.length >= 1) {
+        let formatted = '+7';
+        if (value.length > 1) {
+            formatted += ' (' + value.slice(1, 4);
+        }
+        if (value.length >= 5) {
+            formatted += ') ' + value.slice(4, 7);
+        }
+        if (value.length >= 8) {
+            formatted += '-' + value.slice(7, 9);
+        }
+        if (value.length >= 10) {
+            formatted += '-' + value.slice(9, 11);
+        }
+        e.target.value = formatted;
+    }
+});
+
+// Форматирование госномера
+    document.querySelector('input[name="car_number"]').addEventListener('input', function(e) {
+        let value = e.target.value.toUpperCase().replace(/[^АВЕКМНОРСТУХ0-9]/g, '');
+
+        if (value.length > 0) {
+            let formatted = '';
+
+            // Первая буква
+            if (value.length >= 1) formatted = value[0];
+            // Три цифры
+            for (let i = 1; i < Math.min(4, value.length); i++) {
+                formatted += value[i];
+            }
+            // Две буквы
+            for (let i = 4; i < Math.min(6, value.length); i++) {
+                formatted += value[i];
+            }
+            // Регион (2-3 цифры)
+            for (let i = 6; i < Math.min(9, value.length); i++) {
+                formatted += value[i];
+            }
+
+            e.target.value = formatted;
+        }
+    });
+
+    // Подсказка для email
+    document.querySelector('input[name="email"]').insertAdjacentHTML('afterend',
+        '<small class="text-muted">✉️ Только для рассылки новостей</small>');
+</script>
+{% endblock %}

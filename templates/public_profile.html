@@ -1,0 +1,627 @@
+{% extends "base.html" %}
+
+{% block title %}{{ profile_user.name }} | Север-Юг{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ===== СОВРЕМЕННЫЙ ПУБЛИЧНЫЙ ПРОФИЛЬ ===== */
+    :root {
+        --primary: #4f46e5;
+        --primary-light: #818cf8;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+    }
+
+    .profile-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* Шапка профиля */
+    .profile-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        border-radius: 40px;
+        padding: 40px;
+        margin-bottom: 30px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(79, 70, 229, 0.2);
+    }
+
+    .profile-header::before {
+        content: '👤';
+        position: absolute;
+        right: 30px;
+        bottom: 20px;
+        font-size: 8rem;
+        opacity: 0.1;
+        transform: rotate(15deg);
+        animation: float 8s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: rotate(15deg) translateY(0); }
+        50% { transform: rotate(15deg) translateY(-20px); }
+    }
+
+    .profile-header-content {
+        display: flex;
+        align-items: center;
+        gap: 40px;
+        flex-wrap: wrap;
+        position: relative;
+        z-index: 2;
+    }
+
+    .profile-avatar-large {
+        width: 150px;
+        height: 150px;
+        border-radius: 40px;
+        background: white;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        font-weight: bold;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        border: 5px solid rgba(255,255,255,0.3);
+    }
+
+    .profile-info-large {
+        flex: 1;
+    }
+
+    .profile-name-large {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 5px;
+    }
+
+    .profile-badges {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+
+    .profile-badge {
+        background: rgba(255,255,255,0.2);
+        padding: 5px 15px;
+        border-radius: 30px;
+        font-size: 0.9rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .profile-stats {
+        display: flex;
+        gap: 30px;
+        margin-top: 15px;
+    }
+
+    .profile-stat {
+        text-align: center;
+    }
+
+    .profile-stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    .profile-stat-label {
+        font-size: 0.8rem;
+        opacity: 0.8;
+    }
+
+    /* Сетка контента */
+    .profile-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+        margin-bottom: 30px;
+    }
+
+    /* Карточки */
+    .profile-card {
+        background: white;
+        border-radius: 30px;
+        padding: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        border: 1px solid #f1f5f9;
+        transition: all 0.3s;
+    }
+
+    .profile-card:hover {
+        box-shadow: 0 20px 40px rgba(79, 70, 229, 0.05);
+    }
+
+    .card-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .card-title i {
+        color: var(--primary);
+    }
+
+    /* Информация об автомобиле */
+    .car-info {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-radius: 20px;
+        padding: 20px;
+        margin-top: 15px;
+    }
+
+    .car-detail {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .car-detail:last-child {
+        border-bottom: none;
+    }
+
+    .car-label {
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+
+    .car-value {
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    /* Рейтинги */
+    .rating-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .rating-high {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .rating-medium {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .rating-low {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    /* Отзывы */
+    .reviews-list {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .review-item {
+        padding: 15px;
+        border-bottom: 1px solid #f1f5f9;
+        transition: all 0.2s;
+    }
+
+    .review-item:hover {
+        background: #f8fafc;
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .review-author {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .review-author-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .review-author-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .review-rating {
+        color: #f59e0b;
+        font-size: 0.8rem;
+    }
+
+    .review-text {
+        color: #475569;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin-left: 38px;
+    }
+
+    .review-date {
+        color: #94a3b8;
+        font-size: 0.7rem;
+        margin-top: 5px;
+        margin-left: 38px;
+    }
+
+    /* История поездок */
+    .ride-history-item {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 15px;
+        margin-bottom: 10px;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .ride-history-item:hover {
+        transform: translateX(5px);
+        background: #f1f5f9;
+    }
+
+    .ride-history-route {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .ride-history-date {
+        color: #64748b;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* Кнопка в избранное */
+    .favorite-btn {
+        background: white;
+        border: 2px solid rgba(255,255,255,0.3);
+        color: white;
+        padding: 10px 25px;
+        border-radius: 30px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 15px;
+    }
+
+    .favorite-btn:hover {
+        background: rgba(255,255,255,0.2);
+        border-color: white;
+    }
+
+    .favorite-btn.active {
+        background: #f59e0b;
+        border-color: #f59e0b;
+    }
+
+    /* Приватность */
+    .privacy-notice {
+        background: #f8fafc;
+        border-radius: 20px;
+        padding: 20px;
+        text-align: center;
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+
+    .privacy-notice i {
+        font-size: 2rem;
+        color: #94a3b8;
+        margin-bottom: 10px;
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .profile-header-content {
+            flex-direction: column;
+            text-align: center;
+            gap: 20px;
+        }
+
+        .profile-avatar-large {
+            width: 120px;
+            height: 120px;
+            font-size: 3rem;
+        }
+
+        .profile-name-large {
+            font-size: 2rem;
+        }
+
+        .profile-stats {
+            justify-content: center;
+        }
+
+        .profile-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<script>
+    // Форматирование даты на русском
+                function formatDate(date) {
+                    const months = [
+                        'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+                        'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+                    ];
+                    const d = new Date(date);
+                    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+                }
+</script>
+<div class="profile-container">
+    <!-- Шапка профиля -->
+    <div class="profile-header">
+        <div class="profile-header-content">
+            <div class="profile-avatar-large">
+                {{ profile_user.name[0] }}
+            </div>
+            <div class="profile-info-large">
+                <h1 class="profile-name-large">{{ profile_user.name }}</h1>
+
+                                <div class="profile-badges">
+                    {% if profile_user.is_driver %}
+                    <span class="profile-badge"><i class="bi bi-car-front"></i> Водитель</span>
+                    {% endif %}
+                    <span class="profile-badge"><i class="bi bi-calendar"></i> С {{ profile_user.member_since.strftime('%d %B %Y') if profile_user.member_since else '2026' }}</span>
+                </div>
+
+                {% if profile_user.show_phone and profile_user.contact_phone %}
+                <div style="margin-bottom: 15px;">
+                    <i class="bi bi-telephone"></i> {{ profile_user.contact_phone }}
+                </div>
+                {% endif %}
+
+                <div class="profile-stats">
+                    <div class="profile-stat">
+                        <div class="profile-stat-value">{{ as_driver + as_passenger }}</div>
+                        <div class="profile-stat-label">поездок</div>
+                    </div>
+                    {% if profile_user.show_rating %}
+                    <div class="profile-stat">
+                        <div class="profile-stat-value">{{ "%.1f"|format(profile_user.driver_rating or 5.0) }}</div>
+                        <div class="profile-stat-label">рейтинг</div>
+                    </div>
+                    {% endif %}
+                    <div class="profile-stat">
+                        <div class="profile-stat-value">{{ as_driver }}</div>
+                        <div class="profile-stat-label">🚗</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-value">{{ as_passenger }}</div>
+                        <div class="profile-stat-label">👤</div>
+                    </div>
+                </div>
+
+                {% if user and user.id != profile_user.id %}
+                <button class="favorite-btn {% if is_favorite %}active{% endif %}"
+                        onclick="toggleFavorite({{ profile_user.id }})"
+                        id="favoriteBtn"
+                        style="background: {% if is_favorite %}#f59e0b{% else %}white{% endif %};
+               color: {% if is_favorite %}white{% else %}#4f46e5{% endif %};
+               border: 2px solid {% if is_favorite %}#f59e0b{% else %}#4f46e5{% endif %};">
+                    <i class="bi {% if is_favorite %}bi-star-fill{% else %}bi-star{% endif %}"></i>
+                    {% if is_favorite %}В избранном{% else %}В избранное{% endif %}
+                </button>
+
+                <button class="favorite-btn" onclick="window.location.href='/chat/start/{{ profile_user.id }}'"
+                        style="background: #4f46e5; color: white; border: 2px solid #4f46e5; margin-left: 10px;">
+                    <i class="bi bi-chat"></i> Написать
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Сетка контента -->
+    <div class="profile-grid">
+        <!-- Левая колонка -->
+        <div>
+            {% if profile_user.is_driver and profile_user.car_model %}
+            <!-- Информация об автомобиле -->
+            <div class="profile-card">
+                <h3 class="card-title">
+                    <i class="bi bi-car-front"></i> Автомобиль
+                </h3>
+
+                <div class="car-info">
+                    <div class="car-detail">
+                        <span class="car-label">Марка</span>
+                        <span class="car-value">{{ profile_user.car_color }} {{ profile_user.car_model }}</span>
+                    </div>
+                    <div class="car-detail">
+                        <span class="car-label">Госномер</span>
+                        <span class="car-value">{{ profile_user.car_number }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if profile_user.bio %}
+            <!-- О себе -->
+            <div class="profile-card">
+                <h3 class="card-title">
+                    <i class="bi bi-person-lines-fill"></i> О себе
+                </h3>
+                <p>{{ profile_user.bio }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Отзывы как водитель -->
+            <div class="profile-card">
+                <h3 class="card-title">
+                    <i class="bi bi-star-fill text-warning"></i> Отзывы как водитель
+                </h3>
+
+                <div class="reviews-list">
+                    {% if driver_reviews %}
+                    {% for review, reviewer in driver_reviews %}
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div class="review-author">
+                                <div class="review-author-avatar">{{ reviewer.name[0] }}</div>
+                                <span class="review-author-name">{{ reviewer.name }}</span>
+                            </div>
+                            <div class="review-rating">
+                                {% for i in range(5) %}
+                                {% if i < review.rating %}★{% else %}☆{% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="review-text">{{ review.comment or 'Без комментария' }}</div>
+                        <div class="review-date">{{ review.created_at.strftime('%d.%m.%Y') }}</div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-muted text-center py-3">Пока нет отзывов</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Правая колонка -->
+        <div>
+            <!-- Отзывы как пассажир -->
+            <div class="profile-card">
+                <h3 class="card-title">
+                    <i class="bi bi-star-fill text-warning"></i> Отзывы как пассажир
+                </h3>
+
+                <div class="reviews-list">
+                    {% if passenger_reviews %}
+                    {% for review, reviewer in passenger_reviews %}
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div class="review-author">
+                                <div class="review-author-avatar">{{ reviewer.name[0] }}</div>
+                                <span class="review-author-name">{{ reviewer.name }}</span>
+                            </div>
+                            <div class="review-rating">
+                                {% for i in range(5) %}
+                                {% if i < review.rating %}★{% else %}☆{% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="review-text">{{ review.comment or 'Без комментария' }}</div>
+                        <div class="review-date">{{ review.created_at.strftime('%d.%m.%Y') }}</div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-muted text-center py-3">Пока нет отзывов</p>
+                    {% endif %}
+                </div>
+            </div>
+
+               <!-- История поездок -->
+            {% if profile_user.show_history and recent_rides %}
+            <div class="profile-card">
+                <h3 class="card-title">
+                    <i class="bi bi-clock-history"></i> Последние поездки
+                </h3>
+
+                <div>
+                    {% if recent_rides %}
+                    {% for ride in recent_rides %}
+                    <div class="ride-history-item" onclick="window.location.href='/ride/{{ ride.id }}'">
+                        <div class="ride-history-route">
+                            {{ ride.from_place }} → {{ ride.to_place }}
+                        </div>
+                        <div class="ride-history-date">
+                            <i class="bi bi-calendar"></i> {{ ride.departure_time.strftime('%d.%m.%Y %H:%M') }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-muted text-center py-3">Нет завершенных поездок</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Статистика -->
+            <div class="profile-card">
+                <h3 class="card-title">
+                    <i class="bi bi-graph-up"></i> Статистика
+                </h3>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div style="text-align: center; padding: 15px; background: #f8fafc; border-radius: 16px;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">{{ as_driver }}</div>
+                        <div style="font-size: 0.8rem; color: #64748b;">поездок как водитель</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: #f8fafc; border-radius: 16px;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);">{{ as_passenger }}</div>
+                        <div style="font-size: 0.8rem; color: #64748b;">поездок как пассажир</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleFavorite(driverId) {
+        fetch('/api/favorite_driver', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ driver_id: driverId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const btn = document.getElementById('favoriteBtn');
+            const icon = btn.querySelector('i');
+
+            if (data.favorite) {
+                btn.classList.add('active');
+                icon.className = 'bi bi-star-fill';
+                btn.innerHTML = '<i class="bi bi-star-fill"></i> В избранном';
+                showNotification('success', '✅ Добавлено в избранное');
+            } else {
+                btn.classList.remove('active');
+                icon.className = 'bi bi-star';
+                btn.innerHTML = '<i class="bi bi-star"></i> В избранное';
+                showNotification('info', '❌ Удалено из избранного');
+            }
+        });
+    }
+
+    function showNotification(type, message) {
+        // Используем существующую систему уведомлений
+        const event = new CustomEvent('showNotification', { detail: { type, message } });
+        window.dispatchEvent(event);
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,700 @@
+{% extends "base.html" %}
+
+{% block title %}Регулярные поездки | Север-Юг{% endblock %}
+
+{% block extra_css %}
+<script src="https://api-maps.yandex.ru/2.1/?apikey=4932c58f-dc3f-4c34-b0ca-a64c1ef43dca&lang=ru_RU" type="text/javascript"></script>
+<style>
+    /* ===== ОСНОВНЫЕ СТИЛИ ===== */
+    .regular-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 24px;
+        padding: 24px;
+        color: white;
+        margin-bottom: 24px;
+    }
+
+    /* Компактная сетка для мобильных */
+    @media (max-width: 768px) {
+        .regular-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .days-grid {
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .day-btn {
+            font-size: 0.7rem;
+            padding: 6px 0;
+        }
+
+        .quick-select {
+            gap: 4px;
+        }
+
+        .quick-btn {
+            padding: 6px 10px;
+            font-size: 0.8rem;
+        }
+
+        .row {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+    }
+
+    .regular-header h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .regular-header p {
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    /* ===== СЕТКА ===== */
+    .regular-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+
+    @media (max-width: 768px) {
+        .regular-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ===== КАРТОЧКА СОЗДАНИЯ ===== */
+    .create-card {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+
+    .create-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .create-title i {
+        color: #667eea;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 6px;
+        color: #495057;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e9ecef;
+        border-radius: 14px;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .address-group {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 4px;
+    }
+
+    .address-item {
+        display: flex;
+        align-items: center;
+        padding: 8px;
+        border-radius: 12px;
+        background: white;
+        margin: 4px;
+    }
+
+    .address-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+    }
+
+    .from-icon {
+        background: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+    }
+
+    .to-icon {
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+    }
+
+    .address-input {
+        flex: 1;
+        border: none;
+        padding: 8px;
+        font-size: 0.95rem;
+    }
+
+    .address-input:focus {
+        outline: none;
+    }
+
+    .days-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+        margin-bottom: 15px;
+    }
+
+    .day-btn {
+        aspect-ratio: 1;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        background: white;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .day-btn.active {
+        background: #667eea;
+        border-color: #667eea;
+        color: white;
+    }
+
+    .day-btn:hover {
+        border-color: #667eea;
+    }
+
+    .quick-select {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+
+    .quick-btn {
+        padding: 8px 16px;
+        border: 1px solid #dee2e6;
+        border-radius: 30px;
+        background: white;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .quick-btn:hover {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+
+    .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    .btn-create {
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        border-radius: 16px;
+        color: white;
+        font-weight: 700;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-create:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(40, 167, 69, 0.2);
+    }
+
+    /* ===== СПИСОК РЕГУЛЯРНЫХ ===== */
+    .list-card {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 24px;
+        padding: 24px;
+    }
+
+    .list-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .regular-item {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 18px;
+        margin-bottom: 12px;
+        transition: all 0.2s;
+        border-left: 4px solid #28a745;
+    }
+
+    .regular-item.inactive {
+        border-left-color: #dc3545;
+        opacity: 0.7;
+    }
+
+    .regular-item:hover {
+        transform: translateX(4px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .regular-route {
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 8px;
+    }
+
+    .regular-schedule {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+    }
+
+    .schedule-badge {
+        background: white;
+        padding: 4px 10px;
+        border-radius: 30px;
+        font-size: 0.8rem;
+        border: 1px solid #dee2e6;
+    }
+
+    .regular-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .action-btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 30px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .action-btn.pause {
+        background: #ffc107;
+        color: #000;
+    }
+
+    .action-btn.resume {
+        background: #28a745;
+        color: white;
+    }
+
+    .action-btn.delete {
+        background: #dc3545;
+        color: white;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    /* ===== КАРТА ===== */
+    .map-container {
+        border-radius: 16px;
+        overflow: hidden;
+        height: 250px;
+        margin: 20px 0;
+        border: 2px solid #e9ecef;
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Заголовок -->
+<div class="regular-header">
+    <h1><i class="bi bi-calendar-week"></i> Регулярные поездки</h1>
+    <p>Настройте автоматическое создание поездок по расписанию</p>
+</div>
+
+<div class="regular-grid">
+    <!-- Карточка создания -->
+    <div class="create-card">
+        <div class="create-title">
+            <i class="bi bi-plus-circle"></i> Новая регулярная поездка
+        </div>
+
+        <!-- Карта -->
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+
+        <form id="regularForm">
+            <div class="address-group">
+                <div class="address-item">
+                    <div class="address-icon from-icon">
+                        <i class="bi bi-geo-alt-fill"></i>
+                    </div>
+                    <input type="text" class="address-input" id="fromInput"
+                           placeholder="Откуда? (пл. Захарова)" autocomplete="off">
+                </div>
+                <div class="address-item">
+                    <div class="address-icon to-icon">
+                        <i class="bi bi-flag-fill"></i>
+                    </div>
+                    <input type="text" class="address-input" id="toInput"
+                           placeholder="Куда? (Северная сторона)" autocomplete="off">
+                </div>
+            </div>
+
+            <input type="hidden" id="from_lat">
+            <input type="hidden" id="from_lng">
+            <input type="hidden" id="to_lat">
+            <input type="hidden" id="to_lng">
+
+            <div class="form-group">
+                <label class="form-label">Дни недели</label>
+                <div class="quick-select">
+                    <button type="button" class="quick-btn" onclick="selectDays('work')">Будни</button>
+                    <button type="button" class="quick-btn" onclick="selectDays('weekend')">Выходные</button>
+                    <button type="button" class="quick-btn" onclick="selectDays('all')">Все дни</button>
+                </div>
+                <div class="days-grid" id="daysGrid">
+                    <button type="button" class="day-btn" data-day="1">Пн</button>
+                    <button type="button" class="day-btn" data-day="2">Вт</button>
+                    <button type="button" class="day-btn" data-day="3">Ср</button>
+                    <button type="button" class="day-btn" data-day="4">Чт</button>
+                    <button type="button" class="day-btn" data-day="5">Пт</button>
+                    <button type="button" class="day-btn" data-day="6">Сб</button>
+                    <button type="button" class="day-btn" data-day="7">Вс</button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div>
+                    <label class="form-label">Время</label>
+                    <input type="time" class="form-control" id="rideTime" required>
+                </div>
+                <div>
+                    <label class="form-label">Мест</label>
+                    <select class="form-control" id="seats">
+                        <option value="1">1 место</option>
+                        <option value="2" selected>2 места</option>
+                        <option value="3">3 места</option>
+                        <option value="4">4 места</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div>
+                    <label class="form-label">Цена (₽)</label>
+                    <input type="number" class="form-control" id="price" value="0" min="0">
+                </div>
+                <div>
+                    <label class="form-label">Создавать за</label>
+                    <select class="form-control" id="advance">
+                        <option value="24">24 часа</option>
+                        <option value="12">12 часов</option>
+                        <option value="6">6 часов</option>
+                        <option value="2">2 часа</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Комментарий</label>
+                <textarea class="form-control" id="description" rows="2"
+                          placeholder="Особые пожелания..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-create">
+                <i class="bi bi-check-circle"></i> Сохранить регулярную
+            </button>
+        </form>
+    </div>
+
+    <!-- Список регулярных -->
+    <div class="list-card">
+        <div class="list-title">
+            <span><i class="bi bi-list-check"></i> Мои регулярные</span>
+            <span class="badge bg-primary" id="regularCount">0</span>
+        </div>
+
+        <div id="regularList"></div>
+    </div>
+</div>
+
+<script>
+    let map;
+    let fromPlacemark = null;
+    let toPlacemark = null;
+    let route = null;
+
+    ymaps.ready(init);
+
+    function init() {
+        map = new ymaps.Map("map", {
+            center: [44.6165, 33.5256],
+            zoom: 12,
+            controls: ['zoomControl', 'fullscreenControl']
+        });
+
+        // Поиск
+        const fromSuggest = new ymaps.SuggestView('fromInput');
+        fromSuggest.events.add('select', e => {
+            const address = e.get('item').value;
+            ymaps.geocode(address).then(res => {
+                const coords = res.geoObjects.get(0).geometry.getCoordinates();
+                setFromPoint(coords, address);
+            });
+        });
+
+        const toSuggest = new ymaps.SuggestView('toInput');
+        toSuggest.events.add('select', e => {
+            const address = e.get('item').value;
+            ymaps.geocode(address).then(res => {
+                const coords = res.geoObjects.get(0).geometry.getCoordinates();
+                setToPoint(coords, address);
+            });
+        });
+
+        // Клик по карте
+        map.events.add('click', e => {
+            const coords = e.get('coords');
+            ymaps.geocode(coords).then(res => {
+                const address = res.geoObjects.get(0).getAddressLine();
+
+                if (!document.getElementById('from_lat').value) {
+                    setFromPoint(coords, address);
+                } else {
+                    setToPoint(coords, address);
+                }
+            });
+        });
+    }
+
+    function setFromPoint(coords, address) {
+        document.getElementById('fromInput').value = address;
+        document.getElementById('from_lat').value = coords[0];
+        document.getElementById('from_lng').value = coords[1];
+
+        if (fromPlacemark) map.geoObjects.remove(fromPlacemark);
+
+        fromPlacemark = new ymaps.Placemark(coords, {
+            iconContent: 'А'
+        }, {
+            preset: 'islands#greenStretchyIcon'
+        });
+
+        map.geoObjects.add(fromPlacemark);
+        map.setCenter(coords, 15);
+        buildRoute();
+    }
+
+    function setToPoint(coords, address) {
+        document.getElementById('toInput').value = address;
+        document.getElementById('to_lat').value = coords[0];
+        document.getElementById('to_lng').value = coords[1];
+
+        if (toPlacemark) map.geoObjects.remove(toPlacemark);
+
+        toPlacemark = new ymaps.Placemark(coords, {
+            iconContent: 'Б'
+        }, {
+            preset: 'islands#redStretchyIcon'
+        });
+
+        map.geoObjects.add(toPlacemark);
+        map.setCenter(coords, 15);
+        buildRoute();
+    }
+
+    function buildRoute() {
+        if (route) map.geoObjects.remove(route);
+
+        const fromLat = document.getElementById('from_lat').value;
+        const fromLng = document.getElementById('from_lng').value;
+        const toLat = document.getElementById('to_lat').value;
+        const toLng = document.getElementById('to_lng').value;
+
+        if (fromLat && toLat) {
+            ymaps.route([[fromLat, fromLng], [toLat, toLng]]).then(routeRes => {
+                route = routeRes;
+                map.geoObjects.add(route);
+            });
+        }
+    }
+
+    // Выбор дней
+    document.querySelectorAll('.day-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.classList.toggle('active');
+        });
+    });
+
+    function selectDays(type) {
+        document.querySelectorAll('.day-btn').forEach(btn => {
+            const day = parseInt(btn.dataset.day);
+            if (type === 'work' && day <= 5) btn.classList.add('active');
+            else if (type === 'weekend' && day >= 6) btn.classList.add('active');
+            else if (type === 'all') btn.classList.add('active');
+            else if (type === 'clear') btn.classList.remove('active');
+        });
+    }
+
+    // Загрузка списка
+    function loadRegularRides() {
+        fetch('/api/regular_rides')
+            .then(response => response.json())
+            .then(rides => {
+                const list = document.getElementById('regularList');
+                const countSpan = document.getElementById('regularCount');
+                countSpan.textContent = rides.length;
+
+                if (rides.length === 0) {
+                    list.innerHTML = '<p class="text-muted py-4">Нет регулярных поездок</p>';
+                    return;
+                }
+
+                const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+                let html = '';
+
+                rides.forEach(ride => {
+                    const days = ride.days.split(',').map(d => dayNames[parseInt(d)-1]).join(', ');
+
+                    html += `
+                        <div class="regular-item ${ride.is_active ? '' : 'inactive'}">
+                            <div class="regular-route">${ride.from} → ${ride.to}</div>
+                            <div class="regular-schedule">
+                                <span class="schedule-badge">${days}</span>
+                                <span class="schedule-badge">${ride.time}</span>
+                                <span class="schedule-badge">${ride.seats} мест</span>
+                                <span class="schedule-badge">${ride.price === 0 ? 'Бесплатно' : ride.price + ' ₽'}</span>
+                            </div>
+                            ${ride.description ? `<small class="text-muted">${ride.description}</small>` : ''}
+                            <div class="regular-actions">
+                                <button class="action-btn ${ride.is_active ? 'pause' : 'resume'}"
+                                        onclick="toggleRegular(${ride.id})">
+                                    ${ride.is_active ? '⏸ Пауза' : '▶ Запустить'}
+                                </button>
+                                <button class="action-btn delete" onclick="deleteRegular(${ride.id})">
+                                    ✕ Удалить
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                list.innerHTML = html;
+            });
+    }
+
+    // Сохранение
+    document.getElementById('regularForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const days = [];
+        document.querySelectorAll('.day-btn.active').forEach(btn => {
+            days.push(btn.dataset.day);
+        });
+
+        if (days.length === 0) {
+            alert('Выберите дни недели');
+            return;
+        }
+
+        if (!document.getElementById('from_lat').value || !document.getElementById('to_lat').value) {
+            alert('Выберите маршрут на карте');
+            return;
+        }
+
+        const data = {
+            from_place: document.getElementById('fromInput').value,
+            to_place: document.getElementById('toInput').value,
+            from_lat: parseFloat(document.getElementById('from_lat').value),
+            from_lng: parseFloat(document.getElementById('from_lng').value),
+            to_lat: parseFloat(document.getElementById('to_lat').value),
+            to_lng: parseFloat(document.getElementById('to_lng').value),
+            days: days.join(','),
+            time: document.getElementById('rideTime').value,
+            seats: parseInt(document.getElementById('seats').value),
+            price: parseInt(document.getElementById('price').value),
+            advance: parseInt(document.getElementById('advance').value),
+            description: document.getElementById('description').value
+        };
+
+        fetch('/api/regular_rides', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ Регулярная поездка сохранена');
+                loadRegularRides();
+                this.reset();
+                selectDays('clear');
+            }
+        });
+    });
+
+    function toggleRegular(id) {
+        fetch(`/api/regular_rides/${id}/toggle`, {method: 'POST'})
+            .then(() => loadRegularRides());
+    }
+
+    function deleteRegular(id) {
+        if (confirm('Удалить регулярную поездку?')) {
+            fetch(`/api/regular_rides/${id}`, {method: 'DELETE'})
+                .then(() => loadRegularRides());
+        }
+    }
+
+    // Инициализация
+    loadRegularRides();
+</script>
+{% endblock %}

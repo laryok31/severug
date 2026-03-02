@@ -1,0 +1,599 @@
+{% extends "base.html" %}
+
+{% block title %}Поддержка | Север-Юг{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ===== СОВРЕМЕННАЯ ПОДДЕРЖКА ===== */
+    :root {
+        --support-primary: #4f46e5;
+        --support-secondary: #818cf8;
+        --support-accent: #ef4444;
+        --support-dark: #1e293b;
+        --support-light: #f8fafc;
+    }
+
+    .support-hero {
+        background: linear-gradient(135deg, var(--support-primary) 0%, var(--support-secondary) 100%);
+        border-radius: 40px;
+        padding: 60px 40px;
+        color: white;
+        margin-bottom: 40px;
+        position: relative;
+        overflow: hidden;
+        animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .support-hero::before {
+        content: '💬';
+        position: absolute;
+        right: 20px;
+        bottom: 20px;
+        font-size: 10rem;
+        opacity: 0.1;
+        transform: rotate(15deg);
+        animation: float 8s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: rotate(15deg) translateY(0); }
+        50% { transform: rotate(15deg) translateY(-20px); }
+    }
+
+    .support-hero h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 15px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .support-hero p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        max-width: 600px;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* ===== КАРТОЧКИ ДЕЙСТВИЙ ===== */
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+        margin-bottom: 50px;
+    }
+
+    .action-card {
+        background: white;
+        border-radius: 30px;
+        padding: 35px 25px;
+        text-align: center;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.03);
+        border: 1px solid #f1f5f9;
+        transition: all 0.3s;
+        cursor: pointer;
+        animation: slideIn 0.5s ease;
+        animation-fill-mode: both;
+    }
+
+    .action-card:nth-child(1) { animation-delay: 0.1s; }
+    .action-card:nth-child(2) { animation-delay: 0.2s; }
+    .action-card:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .action-card:hover {
+        transform: translateY(-10px);
+        border-color: var(--support-primary);
+        box-shadow: 0 30px 60px rgba(79, 70, 229, 0.1);
+    }
+
+    .action-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--support-primary) 0%, var(--support-secondary) 100%);
+        border-radius: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 25px;
+        font-size: 2.5rem;
+        color: white;
+        box-shadow: 0 15px 30px rgba(79, 70, 229, 0.2);
+        transition: all 0.3s;
+    }
+
+    .action-card:hover .action-icon {
+        transform: rotate(360deg);
+    }
+
+    .action-title {
+        font-weight: 700;
+        font-size: 1.3rem;
+        color: var(--support-dark);
+        margin-bottom: 10px;
+    }
+
+    .action-desc {
+        color: #6c757d;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+
+    /* ===== МОДАЛЬНОЕ ОКНО ОБРАЩЕНИЯ ===== */
+    .ticket-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(10px);
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .ticket-modal.active {
+        display: flex;
+    }
+
+    .ticket-content {
+        background: white;
+        border-radius: 40px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 40px 80px rgba(0,0,0,0.2);
+        animation: scaleIn 0.3s ease;
+    }
+
+    @keyframes scaleIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    .ticket-header {
+        background: linear-gradient(135deg, var(--support-primary) 0%, var(--support-secondary) 100%);
+        padding: 30px;
+        color: white;
+        border-radius: 40px 40px 0 0;
+        position: relative;
+    }
+
+    .ticket-header h3 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.8rem;
+    }
+
+    .ticket-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.2);
+        border: none;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .ticket-close:hover {
+        background: rgba(255,255,255,0.3);
+        transform: rotate(90deg);
+    }
+
+    .ticket-body {
+        padding: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: var(--support-dark);
+        margin-bottom: 8px;
+        font-size: 1rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 15px 20px;
+        border: 2px solid #f1f5f9;
+        border-radius: 20px;
+        font-size: 1rem;
+        transition: all 0.3s;
+        background: #f8fafc;
+    }
+
+    .form-control:focus {
+        border-color: var(--support-primary);
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        background: white;
+    }
+
+    textarea.form-control {
+        min-height: 150px;
+        resize: vertical;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 18px;
+        background: linear-gradient(135deg, var(--support-primary) 0%, var(--support-secondary) 100%);
+        border: none;
+        border-radius: 30px;
+        color: white;
+        font-weight: 700;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-submit::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .btn-submit:hover::before {
+        left: 100%;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(79, 70, 229, 0.3);
+    }
+
+    /* ===== МОИ ОБРАЩЕНИЯ ===== */
+    .tickets-section {
+        background: white;
+        border-radius: 40px;
+        padding: 40px;
+        margin-top: 40px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.03);
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--support-dark);
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .section-title i {
+        color: var(--support-primary);
+    }
+
+    .ticket-item {
+        background: #f8fafc;
+        border-radius: 25px;
+        padding: 25px;
+        margin-bottom: 20px;
+        border-left: 4px solid transparent;
+        transition: all 0.3s;
+        animation: slideIn 0.3s ease;
+    }
+
+    .ticket-item:hover {
+        transform: translateX(5px);
+        border-left-color: var(--support-primary);
+        box-shadow: 0 10px 30px rgba(79, 70, 229, 0.05);
+    }
+
+    .ticket-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .ticket-subject {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--support-dark);
+    }
+
+    .ticket-status {
+        padding: 6px 16px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .status-open { background: #fff3cd; color: #856404; }
+    .status-in_progress { background: #cff4fc; color: #055160; }
+    .status-closed { background: #d1e7dd; color: #0f5132; }
+
+    .ticket-message {
+        color: #6c757d;
+        margin-bottom: 15px;
+        line-height: 1.6;
+    }
+
+    .ticket-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.85rem;
+        color: #adb5bd;
+    }
+
+    .ticket-reply-btn {
+        background: none;
+        border: 2px solid var(--support-primary);
+        border-radius: 30px;
+        padding: 8px 20px;
+        color: var(--support-primary);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .ticket-reply-btn:hover {
+        background: var(--support-primary);
+        color: white;
+    }
+
+    /* ===== АДАПТИВНОСТЬ ===== */
+    @media (max-width: 768px) {
+        .support-hero {
+            padding: 40px 20px;
+        }
+
+        .support-hero h1 {
+            font-size: 2.2rem;
+        }
+
+        .actions-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .tickets-section {
+            padding: 25px;
+        }
+
+        .ticket-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Герой секция -->
+<div class="support-hero">
+    <h1><i class="bi bi-headset"></i> Поддержка</h1>
+    <p>Мы всегда рядом, чтобы помочь вам. Выберите удобный способ связи или создайте обращение.</p>
+</div>
+
+<!-- Карточки действий -->
+<div class="actions-grid">
+    <div class="action-card" onclick="openTicketModal()">
+        <div class="action-icon">
+            <i class="bi bi-plus-circle"></i>
+        </div>
+        <h3 class="action-title">Создать обращение</h3>
+        <p class="action-desc">Опишите вашу проблему, и мы ответим в ближайшее время</p>
+    </div>
+
+    <div class="action-card" onclick="window.location.href='/faq'">
+        <div class="action-icon">
+            <i class="bi bi-question-circle"></i>
+        </div>
+        <h3 class="action-title">Частые вопросы</h3>
+        <p class="action-desc">Ответы на популярные вопросы пользователей</p>
+    </div>
+
+    <div class="action-card" onclick="window.location.href='https://t.me/l_arick'">
+        <div class="action-icon">
+            <i class="bi bi-telegram"></i>
+        </div>
+        <h3 class="action-title">Telegram</h3>
+        <p class="action-desc">Свяжитесь напрямую через Telegram</p>
+    </div>
+</div>
+
+<!-- Мои обращения -->
+<div class="tickets-section">
+    <h2 class="section-title">
+        <i class="bi bi-list-check"></i> Мои обращения
+    </h2>
+    <div id="ticketsList">
+        <!-- Сюда загрузятся обращения -->
+    </div>
+</div>
+
+<!-- Модальное окно создания обращения -->
+<div class="ticket-modal" id="ticketModal">
+    <div class="ticket-content">
+        <div class="ticket-header">
+            <h3>Новое обращение</h3>
+            <button class="ticket-close" onclick="closeTicketModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="ticket-body">
+            <form id="ticketForm">
+                <div class="form-group">
+                    <label class="form-label">Тема обращения</label>
+                    <input type="text" class="form-control" id="ticketSubject"
+                           placeholder="Например: Проблема с поездкой" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Сообщение</label>
+                    <textarea class="form-control" id="ticketMessage"
+                              placeholder="Опишите вашу проблему подробнее..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Прикрепить файл (необязательно)</label>
+                    <input type="file" class="form-control" id="ticketFile">
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="bi bi-send"></i> Отправить обращение
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Открыть/закрыть модальное окно
+    function openTicketModal() {
+        document.getElementById('ticketModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeTicketModal() {
+        document.getElementById('ticketModal').classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    // Отправка формы
+    document.getElementById('ticketForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const subject = document.getElementById('ticketSubject').value;
+        const message = document.getElementById('ticketMessage').value;
+
+        fetch('/api/support_create', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                subject: subject,
+                message: message
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ Обращение создано! Мы ответим вам в ближайшее время.');
+                closeTicketModal();
+                loadTickets();
+                document.getElementById('ticketForm').reset();
+            }
+        });
+    });
+
+    // Загрузка обращений
+    function loadTickets() {
+        fetch('/api/my_tickets')
+            .then(response => response.json())
+            .then(tickets => {
+                const list = document.getElementById('ticketsList');
+
+                if (tickets.length === 0) {
+                    list.innerHTML = `
+                        <div style="text-align: center; padding: 60px 20px;">
+                            <i class="bi bi-inbox" style="font-size: 4rem; color: #dee2e6;"></i>
+                            <h4 style="margin-top: 20px; color: #6c757d;">Нет обращений</h4>
+                            <p style="color: #adb5bd;">Создайте первое обращение, и мы поможем</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                tickets.forEach(ticket => {
+                    const statusClass = {
+                        'open': 'status-open',
+                        'in_progress': 'status-in_progress',
+                        'closed': 'status-closed'
+                    }[ticket.status] || 'status-open';
+
+                    const statusText = {
+                        'open': 'Открыто',
+                        'in_progress': 'В обработке',
+                        'closed': 'Закрыто'
+                    }[ticket.status] || 'Открыто';
+
+                    html += `
+                        <div class="ticket-item">
+                            <div class="ticket-header">
+                                <span class="ticket-subject">${ticket.subject}</span>
+                                <span class="ticket-status ${statusClass}">${statusText}</span>
+                            </div>
+                            <div class="ticket-message">${ticket.message}</div>
+                            <div class="ticket-footer">
+                                <span><i class="bi bi-clock"></i> ${ticket.created_at}</span>
+                                <button class="ticket-reply-btn" onclick="replyToTicket(${ticket.id})">
+                                    <i class="bi bi-reply"></i> Ответить
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                list.innerHTML = html;
+            });
+    }
+
+    // Ответ на обращение
+    function replyToTicket(ticketId) {
+        const reply = prompt('Ваш ответ:');
+        if (reply) {
+            fetch('/api/support_reply', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    ticket_id: ticketId,
+                    message: reply
+                })
+            }).then(() => {
+                alert('✅ Ответ отправлен');
+                loadTickets();
+            });
+        }
+    }
+
+    // Закрытие модального окна по клику вне
+    document.querySelector('.ticket-modal').addEventListener('click', function(e) {
+        if (e.target.classList.contains('ticket-modal')) {
+            closeTicketModal();
+        }
+    });
+
+    // Загрузка при открытии страницы
+    loadTickets();
+</script>
+{% endblock %}

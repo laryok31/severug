@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Профиль скрыт | Север-Юг{% endblock %}
+
+{% block content %}
+<div style="min-height: 60vh; display: flex; align-items: center; justify-content: center;">
+    <div style="text-align: center; max-width: 500px;">
+        <div style="font-size: 5rem; margin-bottom: 20px;">🔒</div>
+        <h1 style="font-size: 2rem; font-weight: 700; color: #1e293b; margin-bottom: 15px;">Профиль скрыт</h1>
+        <p style="color: #64748b; margin-bottom: 30px;">
+            Пользователь {{ profile_user.name }} ограничил доступ к своему профилю.
+        </p>
+        <a href="/" class="btn" style="background: #4f46e5; color: white; padding: 12px 30px; border-radius: 30px; text-decoration: none;">
+            <i class="bi bi-house"></i> На главную
+        </a>
+    </div>
+</div>
+{% endblock %}

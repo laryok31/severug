@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<!-- ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ - версия 2.0 -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<html lang="ru">
+<head>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>{% block title %}Север-Юг{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        /* Принудительный сброс кэша - версия {{ range(1, 1000) | random }} */
+    </style>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+        .content-wrapper {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px 30px 0 0;
+            padding: 20px;
+            min-height: calc(100vh - 60px);
+            margin-top: 20px;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
+        }
+        /* Исправление кнопки меню */
+.navbar-toggler {
+    border: 2px solid white !important;
+    background-color: rgba(255,255,255,0.2) !important;
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='white' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+}
+
+/* Для темной темы */
+[data-bs-theme="dark"] .navbar-toggler {
+    border-color: #fff !important;
+    background-color: rgba(255,255,255,0.1) !important;
+}
+
+/* Увеличим кнопку для удобства */
+.navbar-toggler {
+    padding: 10px 15px;
+}
+        /* Мобильное меню */
+@media (max-width: 768px) {
+    .navbar-collapse {
+        background: rgba(255,255,255,0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 15px;
+        margin-top: 10px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+
+    .navbar-custom .navbar-nav .nav-link {
+        color: #333 !important;
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .navbar-custom .navbar-nav .nav-link:last-child {
+        border-bottom: none;
+    }
+
+    .navbar-custom .navbar-nav .donate-btn {
+        background: #ffd700;
+        color: #333 !important;
+        margin-top: 5px;
+    }
+
+    /* Темная тема для мобильного меню */
+    [data-bs-theme="dark"] .navbar-collapse {
+        background: rgba(33, 37, 41, 0.95);
+    }
+
+    [data-bs-theme="dark"] .navbar-custom .navbar-nav .nav-link {
+        color: #fff !important;
+        border-bottom-color: #444;
+    }
+}
+        .navbar-custom {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 10px 0;
+        }
+        .navbar-custom .navbar-brand,
+        .navbar-custom .nav-link {
+            color: white !important;
+            font-weight: 500;
+        }
+        .donate-btn {
+            background: #ffd700;
+            color: #333 !important;
+            border-radius: 50px;
+            padding: 8px 20px !important;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .donate-btn:hover {
+            transform: scale(1.05);
+            background: #ffed4a;
+        }
+        @media (max-width: 768px) {
+            .content-wrapper {
+                border-radius: 20px 20px 0 0;
+                padding: 15px;
+            }
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.5rem; }
+        }
+        .btn {
+            border-radius: 50px;
+            padding: 10px 25px;
+            font-weight: 600;
+        }
+        .card {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .badge {
+            padding: 8px 12px;
+            border-radius: 50px;
+        }
+        footer {
+            background: #2c3e50;
+            color: white !important;
+            padding: 30px 0;
+        }
+        footer a {
+            color: #ecf0f1 !important;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        footer a:hover {
+            color: #3498db !important;
+            text-decoration: underline;
+        }
+        footer h6 {
+            color: white !important;
+            font-weight: bold;
+        }
+        footer .text-white-50 {
+            color: rgba(255,255,255,0.7) !important;
+        }
+        footer hr {
+            background-color: rgba(255,255,255,0.2);
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="bi bi-car-front"></i> Север-Юг
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                {% if user %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-car-front"></i> Поездки
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/search"><i class="bi bi-search text-success"></i> Я пассажир</a></li>
+                        <li><a class="dropdown-item" href="/create_ride"><i class="bi bi-plus-circle text-primary"></i> Я водитель</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/chats"><i class="bi bi-chat"></i> Чаты</a>
+                </li>
+
+                <!-- Кнопка уведомлений -->
+                <div class="position-relative me-2">
+                    <a class="nav-link p-2" href="#" onclick="toggleNotifications(event)" style="text-style: none; color: white; font-size: 1.0rem;" id="notificationBell">
+                        <i class="bi bi-bell"></i> Уведомления
+                        <span class="notification-badge" id="notificationBadge">0</span>
+                    </a>
+                </div>
+
+                <!-- Выпадающая панель уведомлений -->
+                <div class="dropdown-menu dropdown-menu-end p-0" id="notificationDropdown" style="width: 350px; max-width: 90vw; display: none;">
+                    <div class="dropdown-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px 10px 0 0; padding: 15px;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-bell"></i> Уведомления</span>
+                            <button class="btn btn-sm btn-light" onclick="markAllRead()">✓ Все</button>
+                        </div>
+                    </div>
+                    <div class="notification-list" id="notificationList" style="max-height: 400px; overflow-y: auto; padding: 10px;">
+                        <div class="text-center py-4">Загрузка...</div>
+                    </div>
+                    <div class="dropdown-footer p-2 text-center border-top">
+                        <a href="/profile#notifications" class="text-decoration-none small">Все уведомления</a>
+                    </div>
+                </div>
+
+                <style>
+                    .notification-badge {
+                        position: absolute;
+                        top: -5px;
+                        right: -5px;
+                        background: #dc3545;
+                        color: white;
+                        border-radius: 50%;
+                        min-width: 20px;
+                        height: 20px;
+                        font-size: 0.75rem;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 0 4px;
+                        animation: pulse 2s infinite;
+                    }
+
+                    @keyframes pulse {
+                        0% { transform: scale(1); }
+                        50% { transform: scale(1.1); }
+                        100% { transform: scale(1); }
+                    }
+
+                    .notification-item {
+                        padding: 12px;
+                        border-radius: 10px;
+                        margin-bottom: 8px;
+                        background: #f8f9fa;
+                        border-left: 3px solid transparent;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                    }
+
+                    .notification-item:hover {
+                        background: #f0f3ff;
+                        border-left-color: #667eea;
+                    }
+
+                    .notification-item.unread {
+                        background: #f0f3ff;
+                        border-left-color: #667eea;
+                    }
+
+                    .notification-title {
+                        font-weight: 600;
+                        font-size: 0.95rem;
+                        margin-bottom: 3px;
+                    }
+
+                    .notification-text {
+                        font-size: 0.85rem;
+                        color: #6c757d;
+                        margin-bottom: 5px;
+                    }
+
+                    .notification-time {
+                        font-size: 0.7rem;
+                        color: #adb5bd;
+                    }
+
+                    #notificationDropdown {
+                        position: fixed;
+                        top: 60px;
+                        right: 20px;
+                        z-index: 9999;
+                        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                        border: none;
+                        border-radius: 15px;
+                        overflow: hidden;
+                    }
+
+                    @media (max-width: 768px) {
+                        #notificationDropdown {
+                            right: 10px;
+                            left: 10px;
+                            width: auto;
+                        }
+                    }
+                </style>
+
+                <script>
+                    function showNotification(type, message) {
+                        const notification = document.createElement('div');
+                        notification.className = `toast-notification toast-${type}`;
+                        notification.innerHTML = message;
+                        document.body.appendChild(notification);
+
+                        setTimeout(() => {
+                            notification.remove();
+                        }, 3000);
+                    }
+
+                    function toggleNotifications(event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        const dropdown = document.getElementById('notificationDropdown');
+                        const isVisible = dropdown.style.display === 'block';
+
+                        // Закрываем все другие дропдауны
+                        document.querySelectorAll('.dropdown-menu').forEach(el => {
+                            el.style.display = 'none';
+                        });
+
+                        dropdown.style.display = isVisible ? 'none' : 'block';
+
+                        if (!isVisible) {
+                            loadNotifications();
+                        }
+                    }
+
+                    // Закрытие по клику вне
+                    document.addEventListener('click', function(event) {
+                        const dropdown = document.getElementById('notificationDropdown');
+                        const bell = document.getElementById('notificationBell');
+
+                        if (!bell.contains(event.target) && !dropdown.contains(event.target)) {
+                            dropdown.style.display = 'none';
+                        }
+                    });
+
+                    function loadNotifications() {
+                        fetch('/api/notifications')
+                            .then(response => response.json())
+                            .then(data => {
+                                const list = document.getElementById('notificationList');
+                                const badge = document.getElementById('notificationBadge');
+
+                                badge.textContent = data.length;
+                                badge.style.display = data.length > 0 ? 'flex' : 'none';
+
+                                if (data.length === 0) {
+                                    list.innerHTML = '<div class="text-center text-muted py-4">✨ Нет новых уведомлений</div>';
+                                    return;
+                                }
+
+                                let html = '';
+                                data.forEach(notif => {
+                                    const link = notif.link && notif.link !== 'null' ? notif.link : '#';
+                                    html += `
+                                        <div class="notification-item unread" onclick="window.location.href='${link}'">
+                                            <div class="notification-title">${notif.title}</div>
+                                            <div class="notification-text">${notif.text}</div>
+                                            <div class="notification-time">${notif.created_at}</div>
+                                        </div>
+                                    `;
+                                });
+                                list.innerHTML = html;
+                            });
+                    }
+
+                    function markAllRead() {
+                        fetch('/api/mark_notifications_read', {method: 'POST'})
+                            .then(() => {
+                                document.getElementById('notificationBadge').style.display = 'none';
+                                loadNotifications();
+                            });
+                    }
+
+                    // Загружаем количество при загрузке
+                    fetch('/api/notifications/count')
+                        .then(response => response.json())
+                        .then(data => {
+                            const badge = document.getElementById('notificationBadge');
+                            badge.textContent = data.count;
+                            badge.style.display = data.count > 0 ? 'flex' : 'none';
+                        });
+                </script>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/profile"><i class="bi bi-person"></i> {{ user.name }}</a>
+                </li>
+                <!--<li class="nav-item">
+                    <a class="nav-link donate-btn" href="/donate"><i class="bi bi-heart-fill"></i> Поддержать</a>
+                </li>-->
+                <li class="nav-item">
+                    <a class="nav-link" href="/auth/logout"><i class="bi bi-box-arrow-right"></i> Выйти</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/auth/login"><i class="bi bi-box-arrow-in-right"></i> Войти</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/auth/register"><i class="bi bi-person-plus"></i> Регистрация</a>
+                </li>
+                <!-- <li class="nav-item">
+                    <a class="nav-link donate-btn" href="/donate"><i class="bi bi-heart-fill"></i> Поддержать</a>
+                </li> -->
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="content-wrapper">
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</div>
+
+<!-- Футер -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h6>🚗 Север-Юг</h6>
+                <p class="text-white-50 small">
+                    Бесплатный сервис поиска попутчиков в Севастополе.<br>
+                    Помогаем добраться через бухту, когда катера не ходят.
+                </p>
+            </div>
+            <div class="col-md-4">
+                <h6>Помощь</h6>
+                <ul class="list-unstyled">
+                    <li><a href="/how-it-works" class="text-white-50">Как это работает</a></li>
+                    <li><a href="/faq" class="text-white-50">Частые вопросы</a></li>
+                    <li><a href="/safety" class="text-white-50">Безопасность</a></li>
+                </ul>
+            </div>
+
+            <div class="col-md-4">
+                <h6>Контакты</h6>
+                <ul class="list-unstyled">
+                    <li>
+                        <i class="bi bi-telegram"></i>
+                        <a href="https://t.me/l_arick" target="_blank" class="text-white-50">@l_arick</a>
+                    </li>
+                    <li>
+                        <i class="bi bi-envelope"></i>
+                        <a href="mailto:support@sev-sever-ug.ru" class="text-white-50">support@sev-sever-ug.ru</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <hr>
+        <div class="text-center text-white-50 small">
+            <a href="#" onclick="toggleTheme(); return false;" class="text-white-50">
+                <i class="bi" id="themeIcon">{{ theme_icon }}</i>
+                <span class="theme-text"> Ночная тема</span>
+            </a><br>
+            © 2026 Север-Юг. Все права защищены.<br>
+            <i class="bi bi-heart-fill text-danger"></i> Сделано с любовью для Севастополя
+        </div>
+    </div>
+</footer>
+
+<!-- Система уведомлений - ВСТАВЛЯЕМ СЮДА -->
+<div id="notification-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+
+<style>
+    .notification {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        margin-bottom: 10px;
+        padding: 15px 20px;
+        min-width: 300px;
+        max-width: 400px;
+        animation: slideIn 0.3s ease;
+        border-left: 4px solid;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    .notification:hover {
+        transform: translateX(-5px);
+    }
+    .notification.info { border-left-color: #17a2b8; }
+    .notification.success { border-left-color: #28a745; }
+    .notification.warning { border-left-color: #ffc107; }
+    .notification.error { border-left-color: #dc3545; }
+    .notification-title {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    .notification-text {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    .notification-close {
+        float: right;
+        cursor: pointer;
+        color: #999;
+    }
+    .notification-close:hover {
+        color: #333;
+    }
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+</style>
+
+<script>
+    let notificationCheckInterval = null;
+    let lastNotificationId = 0;
+
+    function showNotification(type, title, text, link = null, duration = 5000) {
+        const container = document.getElementById('notification-container');
+        const id = 'notif_' + Date.now() + '_' + Math.random();
+
+        const icons = {
+            'info': 'ℹ️',
+            'success': '✅',
+            'warning': '⚠️',
+            'error': '❌',
+            'new_message': '💬',
+            'new_booking_request': '📋',
+            'booking_approved': '✅',
+            'booking_rejected': '❌',
+            'ride_created': '🚗',
+            'regular_ride_created': '📅',
+            'telegram_connected': '📱'
+        };
+
+        const icon = icons[type] || '🔔';
+
+        const html = `
+            <div id="${id}" class="notification ${type}" onclick="window.location.href='${link}'">
+                <span class="notification-close" onclick="event.stopPropagation(); closeNotification('${id}')">✕</span>
+                <div class="notification-title">${icon} ${title}</div>
+                <div class="notification-text">${text}</div>
+            </div>
+        `;
+
+        container.insertAdjacentHTML('beforeend', html);
+
+        setTimeout(() => {
+            closeNotification(id);
+        }, duration);
+    }
+
+    function closeNotification(id) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => el.remove(), 300);
+        }
+    }
+
+    function checkNewNotifications() {
+        fetch('/api/check_notifications?since=' + lastNotificationId)
+            .then(response => response.json())
+            .then(data => {
+                if (data.notifications && data.notifications.length > 0) {
+                    data.notifications.forEach(notif => {
+                        showNotification(
+                            notif.type,
+                            notif.title,
+                            notif.text,
+                            notif.link,
+                            7000
+                        );
+                        if (notif.id > lastNotificationId) {
+                            lastNotificationId = notif.id;
+                        }
+                    });
+                }
+            });
+    }
+
+    {% if user %}
+        fetch('/api/last_notification_id')
+            .then(response => response.json())
+            .then(data => {
+                lastNotificationId = data.last_id;
+                notificationCheckInterval = setInterval(checkNewNotifications, 10000);
+            });
+    {% endif %}
+
+    window.addEventListener('beforeunload', function() {
+        if (notificationCheckInterval) {
+            clearInterval(notificationCheckInterval);
+        }
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+    if (window.Telegram && Telegram.WebApp) {
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+    }
+</script>
+{% block extra_js %}{% endblock %}
+<script>
+    // Ночная тема
+    function toggleTheme() {
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute('data-bs-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-bs-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+
+        // Обновляем иконку
+        const icon = document.getElementById('themeIcon');
+        const text = document.querySelector('.theme-text');
+        if (newTheme === 'dark') {
+            icon.className = 'bi bi-sun';
+            if (text) text.textContent = ' Светлая тема';
+        } else {
+            icon.className = 'bi bi-moon-stars';
+            if (text) text.textContent = ' Ночная тема';
+        }
+        return false;
+    }
+
+    // Загружаем сохраненную тему
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-bs-theme', savedTheme);
+
+        const icon = document.getElementById('themeIcon');
+        const text = document.querySelector('.theme-text');
+        if (savedTheme === 'dark') {
+            if (icon) icon.className = 'bi bi-sun';
+            if (text) text.textContent = ' Светлая тема';
+        } else {
+            if (icon) icon.className = 'bi bi-moon-stars';
+            if (text) text.textContent = ' Ночная тема';
+        }
+    });
+</script>
+<!-- Приветственное сообщение для новых пользователей -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Проверяем, авторизован ли пользователь
+        {% if not user %}
+            // Проверяем, было ли уже показано сообщение в этой сессии
+            if (!sessionStorage.getItem('welcomeShown')) {
+                setTimeout(function() {
+                    showNotification(
+                        'info',
+                        '👋 Добро пожаловать в Север-Юг!',
+                        'Найдите попутчика или создайте свою поездку.\n\n' +
+                        'Для доступа ко всем функциям необходимо войти или зарегистрироваться.',
+                        null,
+                        10000
+                    );
+
+                    // Показываем второе сообщение с кнопками через 2 секунды
+                    setTimeout(function() {
+                        const container = document.getElementById('notification-container');
+                        const id = 'notif_auth_' + Date.now();
+
+                        const html = `
+                            <div id="${id}" class="notification warning" style="cursor: default;">
+                                <span class="notification-close" onclick="closeNotification('${id}')">✕</span>
+                                <div class="notification-title">🔐 Требуется авторизация</div>
+                                <div class="notification-text mb-2">
+                                    Чтобы создавать поездки и бронировать места, войдите в аккаунт.
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <a href="/auth/login" class="btn btn-primary btn-sm flex-grow-1">
+                                        <i class="bi bi-box-arrow-in-right"></i> Войти
+                                    </a>
+                                    <a href="/auth/register" class="btn btn-success btn-sm flex-grow-1">
+                                        <i class="bi bi-person-plus"></i> Регистрация
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+
+                        container.insertAdjacentHTML('beforeend', html);
+
+                        setTimeout(() => {
+                            closeNotification(id);
+                        }, 15000);
+                    }, 2000);
+
+                    sessionStorage.setItem('welcomeShown', 'true');
+                }, 1000);
+            }
+        {% endif %}
+    });
+</script>
+</body>
+</html>
