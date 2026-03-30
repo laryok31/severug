@@ -32,6 +32,7 @@ class User(db.Model):
     # Новые поля для оптимизации
     last_seen = db.Column(db.DateTime, default=datetime.now)
     last_notification_check = db.Column(db.DateTime, default=datetime.now)
+    last_login = db.Column(db.DateTime, default=datetime.now)
 
     created_at = db.Column(db.DateTime, default=datetime.now)
     # Настройки приватности
