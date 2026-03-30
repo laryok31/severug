@@ -1,15 +1,20 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-from database import db, User
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
+from database import db, User, Referral
 from datetime import datetime
 import hashlib
 import re
 import base64
+from werkzeug.security import generate_password_hash, check_password_hash
 
 auth = Blueprint('auth', __name__)
 
 def hash_password(password):
-    """Хеширование пароля"""
-    return hashlib.sha256(password.encode()).hexdigest()
+    """Хеширование пароля с использованием bcrypt-like метода"""
+    return generate_password_hash(password, method='pbkdf2:sha256', salt_length=16)
+
+def verify_password(password, hash):
+    """Проверка пароля"""
+    return check_password_hash(hash, password)
 
 def format_phone(phone):
     """Форматирует номер в формат +7XXXXXXXXXX"""
@@ -38,9 +43,12 @@ def login():
 
         user = User.query.filter_by(phone=formatted_phone).first()
 
-        if user and user.password == hash_password(password):
+        if user and verify_password(password, user.password):
             session['user_id'] = user.id
             session.permanent = True
+            # Логирование входа
+            user.last_login = datetime.now()
+            db.session.commit()
             return redirect(url_for('profile'))
         else:
             flash('Неверный номер или пароль')

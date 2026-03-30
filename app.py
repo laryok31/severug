@@ -1,21 +1,19 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session
-from database import db, User, Ride, Booking, Message, Notification, FavoriteRoute, RegularRide
-from datetime import datetime, timedelta
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash, abort
+from flask_wtf.csrf import CSRFProtect
+from database import db, User, Ride, Booking, Message, Notification, FavoriteRoute, RegularRide, FavoriteDriver, Blacklist, DriverRating, PassengerRating, News, SiteStats, GeneralChat, Referral, SupportTicket, SupportMessage
+from datetime import datetime, timedelta, timezone
 import math
 import requests
 import hashlib
 import json
 import random
+import re
+import os
 from auth import auth, login_required
-import requests
-import json
-import math
-import hashlib
-import random
 import base64
 from sqlalchemy import func
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash
-from database import db, User, Ride, Booking, Message, Notification, FavoriteRoute, RegularRide, FavoriteDriver, Blacklist, DriverRating, PassengerRating, News, SiteStats, GeneralChat, Referral
+from functools import wraps
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
@@ -27,16 +25,20 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     'pool_pre_ping': True,
     'pool_recycle': 300,
 }
-app.config['SECRET_KEY'] = 'sevastopol-2024-super-secret-key'
+# Безопасный случайный ключ сессии
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', hashlib.sha256(os.urandom(32)).hexdigest())
 app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
+app.config['WTF_CSRF_ENABLED'] = True
+app.config['WTF_CSRF_TIME_LIMIT'] = 3600  # 1 час
 
 # Telegram Bot настройки
-app.config['TELEGRAM_BOT_TOKEN'] = '8544437613:AAH8f_cclE3p098ZSND9WufB0ZOxzwk5loE'
+app.config['TELEGRAM_BOT_TOKEN'] = os.environ.get('TELEGRAM_BOT_TOKEN', '8544437613:AAH8f_cclE3p098ZSND9WufB0ZOxzwk5loE')
 app.config['TELEGRAM_BOT_USERNAME'] = 'severug_bot'
 app.config['TELEGRAM_WEBHOOK_URL'] = 'https://sev-sever-ug.ru/telegram_webhook'  # Для продакшена
 
 db.init_app(app)
+csrf = CSRFProtect(app)
 app.register_blueprint(auth, url_prefix='/auth')
 
 # Функции для работы с пользователем
